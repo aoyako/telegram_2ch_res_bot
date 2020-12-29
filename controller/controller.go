@@ -1,22 +1,20 @@
 package controller
 
 import (
-	"github.com/aoyako/telegram_2ch_res_bot/logic"
 	"github.com/aoyako/telegram_2ch_res_bot/storage"
 )
 
 // User interface defines methods for User Controller
 type User interface {
-	Register(user *logic.User) error   // Performs user registration
-	Unregister(user *logic.User) error // Performs user deregistration
-	Update(user *logic.User) error     // Updates user
+	Register(chatID uint) error   // Performs user registration
+	Unregister(chatID uint) error // Performs user deregistration
 }
 
 // Subscription interface defines methods for Publication Controller
 type Subscription interface {
-	Add(user *logic.User, publication *logic.Publication) error    // Adds new subscription to user with publication
-	Remove(user *logic.User, publication *logic.Publication) error // Removes existing sybscription from user
-	Update(user *logic.User, publication *logic.Publication) error // Updates selected subscription
+	Add(chatID uint, request string) error    // Adds new subscription to user with publication
+	Remove(chatID, number uint) error         // Removes existing sybscription from user
+	Update(chatID uint, request string) error // Updates selected subscription
 }
 
 // Info interface definces methods for Info Controller

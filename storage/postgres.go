@@ -2,6 +2,7 @@ package storage
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/aoyako/telegram_2ch_res_bot/logic"
 	"gorm.io/driver/postgres"
@@ -22,7 +23,11 @@ func formatPostgresConfig(cfg Config) string {
 
 // MigrateDatabase migrates database
 func MigrateDatabase(db *gorm.DB) {
-	db.AutoMigrate(&logic.User{}, &logic.Publication{}, &logic.Info{})
+	err := db.AutoMigrate(&logic.User{}, &logic.Publication{}, &logic.Info{})
+
+	if err != nil {
+		log.Fatalf("Error migrating database")
+	}
 
 	var count int64
 	db.Find(&logic.Info{}).Count(&count)

@@ -16,16 +16,17 @@ func NewUserController(stg *storage.Storage) *UserController {
 }
 
 // Register performs user registration
-func (ucon *UserController) Register(user *logic.User) error {
-	return nil
+func (ucon *UserController) Register(chatID uint) error {
+	user := &logic.User{
+		ChatID: chatID,
+	}
+	return ucon.stg.Register(user)
 }
 
 // Unregister performs user deregistration
-func (ucon *UserController) Unregister(user *logic.User) error {
-	return nil
-}
-
-// Update user
-func (ucon *UserController) Update(user *logic.User) error {
-	return nil
+func (ucon *UserController) Unregister(chatID uint) error {
+	user := &logic.User{
+		ChatID: chatID,
+	}
+	return ucon.stg.Unregister(user)
 }

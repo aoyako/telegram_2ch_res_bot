@@ -7,7 +7,7 @@ type User struct {
 	gorm.Model
 	ChatID    uint          `gorm:"uniqueIndex"` // Telegram's chat id
 	SubsCount uint          // Amount of current subscribtions
-	Subs      []Publication // Owner of publication
+	Subs      []Publication `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // User's subscriptions
 }
 
 // Publication stores info about origin of data sent to user
@@ -16,6 +16,7 @@ type Publication struct {
 	Board  string // 2ch board name
 	Tags   string // Array of strings to search in thread title
 	UserID uint   // Publication owner
+	Type   string
 }
 
 // Info stores addition information about bot
