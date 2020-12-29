@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
+	"github.com/aoyako/telegram_2ch_res_bot/logic"
+	"github.com/aoyako/telegram_2ch_res_bot/storage"
 	"github.com/spf13/viper"
 )
 
@@ -11,6 +14,25 @@ func main() {
 	if err := initConfig(); err != nil {
 		log.Fatalf("Error initializing config file: %s", err.Error())
 	}
+
+	db, err := storage.NewPostgresDB(storage.Config{
+		Host:     viper.GetString("db.host"),
+		Port:     viper.GetString("db.port"),
+		Username: viper.GetString("db.username"),
+		DBName:   viper.GetString("db.dbname"),
+		SSLMode:  viper.GetString("db.sslmode"),
+		Password: os.Getenv("DB_PASSWORD"),
+	})
+
+	storage.MigrateDatabase(db)
+
+	// storage := storage.NewStorage(db)
+
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	db.AutoMigrate(&logic.User{}, &logic.Publication{}, &logic.Info{})
 
 	fmt.Println("hello world")
 }
