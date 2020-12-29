@@ -27,6 +27,9 @@ func main() {
 	storage.MigrateDatabase(db)
 
 	// storage := storage.NewStorage(db)
+	// storage.User.Register(&logic.User{})
+	// usr, _ := storage.User.GetByChatID(0)
+	// storage.Subscription.Add(usr, &logic.Publication{UserID: 1})
 
 	if err != nil {
 		log.Fatal(err.Error())

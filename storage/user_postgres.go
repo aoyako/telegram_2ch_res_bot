@@ -32,6 +32,12 @@ func (userStorage *UserPostgres) Unregister(user *logic.User) error {
 // GetByChatID returns user by chat id
 func (userStorage *UserPostgres) GetByChatID(chatID uint) (*logic.User, error) {
 	var user logic.User
-	result := userStorage.db.Where("ChatID = ?", chatID).First(&user)
+	result := userStorage.db.Where("chat_id = ?", chatID).First(&user)
 	return &user, result.Error
+}
+
+// Update user
+func (userStorage *UserPostgres) Update(user *logic.User) error {
+	result := userStorage.db.Save(user)
+	return result.Error
 }
