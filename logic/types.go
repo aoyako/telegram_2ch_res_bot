@@ -5,7 +5,7 @@ import "gorm.io/gorm"
 // User stores info about user
 type User struct {
 	gorm.Model
-	ChatID    uint          `gorm:"uniqueIndex"` // Telegram's chat id
+	ChatID    uint64        `gorm:"uniqueIndex"` // Telegram's chat id
 	SubsCount uint          // Amount of current subscribtions
 	Subs      []Publication `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // User's subscriptions
 }
@@ -22,5 +22,5 @@ type Publication struct {
 // Info stores addition information about bot
 type Info struct {
 	gorm.Model
-	LastPost uint // Time of the latest post
+	LastPost uint64 // Time of the latest post
 }

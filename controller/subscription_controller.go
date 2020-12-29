@@ -20,8 +20,8 @@ func NewSubscriptionController(stg *storage.Storage) *SubscriptionController {
 }
 
 // Add new subscription to user with publication
-func (scon *SubscriptionController) Add(chatID uint, request string) error {
-	user, err := scon.stg.GetByChatID(chatID)
+func (scon *SubscriptionController) Add(chatID uint64, request string) error {
+	user, err := scon.stg.GetUserByChatID(chatID)
 	if err != nil {
 		return err
 	}
@@ -35,18 +35,19 @@ func (scon *SubscriptionController) Add(chatID uint, request string) error {
 	if err != nil {
 		return err
 	}
+	publication.UserID = user.ID
 
 	return scon.stg.Subscription.Add(user, publication)
 }
 
 // Remove existing sybscription from user
-func (scon *SubscriptionController) Remove(chatID, number uint) error {
-	user, err := scon.stg.User.GetByChatID(chatID)
+func (scon *SubscriptionController) Remove(chatID uint64, number uint) error {
+	user, err := scon.stg.User.GetUserByChatID(chatID)
 	if err != nil {
 		return fmt.Errorf("Cannot find user with chat_id=%d", chatID)
 	}
 
-	subs, err := scon.stg.Subscription.GetByUser(user)
+	subs, err := scon.stg.Subscription.GetSubsByUser(user)
 	if err != nil {
 		return fmt.Errorf("Cannot get user's subs: %s", err.Error())
 	}
@@ -59,9 +60,24 @@ func (scon *SubscriptionController) Remove(chatID, number uint) error {
 }
 
 // Update selected subscription
-// May be useful in future updates
-func (scon *SubscriptionController) Update(chatID uint, request string) error {
+// May be used in future updates
+func (scon *SubscriptionController) Update(chatID uint64, request string) error {
 	return nil
+}
+
+// GetSubsByChatID returns all user's subs
+func (scon *SubscriptionController) GetSubsByChatID(chatID uint64) ([]logic.Publication, error) {
+	user, err := scon.stg.GetUserByChatID(chatID)
+	if err != nil {
+		return nil, fmt.Errorf("Cannot find user with chat_id=%d", chatID)
+	}
+
+	subs, err := scon.stg.GetSubsByUser(user)
+	if err != nil {
+		return nil, fmt.Errorf("Cannot get user's subs: %s", err.Error())
+	}
+
+	return subs, nil
 }
 
 // Parses request string

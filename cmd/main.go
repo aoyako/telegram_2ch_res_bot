@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
+	"github.com/aoyako/telegram_2ch_res_bot/controller"
+
 	"github.com/aoyako/telegram_2ch_res_bot/logic"
 	"github.com/aoyako/telegram_2ch_res_bot/storage"
+	"github.com/aoyako/telegram_2ch_res_bot/telegram"
 	"github.com/spf13/viper"
 )
 
@@ -24,9 +26,12 @@ func main() {
 		Password: os.Getenv("DB_PASSWORD"),
 	})
 
-	storage.MigrateDatabase(db)
+	db.AutoMigrate(&logic.User{}, &logic.Publication{}, &logic.Info{})
 
-	// storage := storage.NewStorage(db)
+	// storage.MigrateDatabase(db)
+
+	storage := storage.NewStorage(db)
+	controller := controller.NewController(storage)
 	// storage.User.Register(&logic.User{})
 	// usr, _ := storage.User.GetByChatID(0)
 	// storage.Subscription.Add(usr, &logic.Publication{UserID: 1})
@@ -35,13 +40,14 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	db.AutoMigrate(&logic.User{}, &logic.Publication{}, &logic.Info{})
-
-	fmt.Println("hello world")
+	// fmt.Println("hello world")
+	bot := telegram.NewTelegramBot(os.Getenv("BOT_TOKEN"), controller)
+	telegram.SetupHandlers(bot)
+	bot.Bot.Start()
 }
 
 func initConfig() error {
-	viper.AddConfigPath("configs")
+	viper.AddConfigPath("../configs")
 	viper.SetConfigName("config")
 
 	return viper.ReadInConfig()

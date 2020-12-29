@@ -19,8 +19,13 @@ func NewUserPostgres(db *gorm.DB) *UserPostgres {
 
 // Register adds user in databse
 func (userStorage *UserPostgres) Register(user *logic.User) error {
-	result := userStorage.db.Create(user)
-	return result.Error
+	var tUser logic.User
+	exists := userStorage.db.Where("chat_id = ?", user.ChatID).First(&tUser)
+	if !(exists.RowsAffected > 0) {
+		result := userStorage.db.Create(user)
+		return result.Error
+	}
+	return nil
 }
 
 // Unregister removes user from database
@@ -29,8 +34,8 @@ func (userStorage *UserPostgres) Unregister(user *logic.User) error {
 	return result.Error
 }
 
-// GetByChatID returns user by chat id
-func (userStorage *UserPostgres) GetByChatID(chatID uint) (*logic.User, error) {
+// GetUserByChatID returns user by chat id
+func (userStorage *UserPostgres) GetUserByChatID(chatID uint64) (*logic.User, error) {
 	var user logic.User
 	result := userStorage.db.Where("chat_id = ?", chatID).First(&user)
 	return &user, result.Error

@@ -18,7 +18,7 @@ func NewInfoPostgres(db *gorm.DB) *InfoPostgres {
 }
 
 // GetLastTimestamp returns time of the latest post
-func (infoStorage *InfoPostgres) GetLastTimestamp() uint {
+func (infoStorage *InfoPostgres) GetLastTimestamp() uint64 {
 	var info logic.Info
 	infoStorage.db.First(&info)
 
@@ -26,7 +26,7 @@ func (infoStorage *InfoPostgres) GetLastTimestamp() uint {
 }
 
 // SetLastTimestamp sets time of the latest post
-func (infoStorage *InfoPostgres) SetLastTimestamp(timestamp uint) {
+func (infoStorage *InfoPostgres) SetLastTimestamp(timestamp uint64) {
 	var info logic.Info
 	infoStorage.db.First(&info)
 	info.LastPost = timestamp

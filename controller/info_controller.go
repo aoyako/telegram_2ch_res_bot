@@ -13,11 +13,11 @@ func NewInfoController(stg *storage.Storage) *InfoController {
 }
 
 // GetLastTimestamp returns time of the latest post
-func (icon *InfoController) GetLastTimestamp() uint {
+func (icon *InfoController) GetLastTimestamp() uint64 {
 	return icon.stg.GetLastTimestamp()
 }
 
 // SetLastTimestamp sets time of the latest post
-func (icon *InfoController) SetLastTimestamp(tsp uint) {
+func (icon *InfoController) SetLastTimestamp(tsp uint64) {
 	icon.stg.SetLastTimestamp(tsp)
 }
