@@ -5,7 +5,7 @@ import "gorm.io/gorm"
 // User stores info about user
 type User struct {
 	gorm.Model
-	ChatID    uint          // Telegram's chat id
+	ChatID    uint          `gorm:"uniqueIndex"` // Telegram's chat id
 	SubsCount uint          // Amount of current subscribtions
 	Subs      []Publication // Owner of publication
 }

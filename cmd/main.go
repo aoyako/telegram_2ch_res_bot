@@ -24,9 +24,9 @@ func main() {
 		Password: os.Getenv("DB_PASSWORD"),
 	})
 
-	storage := storage.NewStorage(db)
+	storage.MigrateDatabase(db)
 
-	storage.Register(&logic.User{})
+	// storage := storage.NewStorage(db)
 
 	if err != nil {
 		log.Fatal(err.Error())
