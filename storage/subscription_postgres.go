@@ -35,8 +35,8 @@ func (subsStorage *SubscriptionPostgres) Update(user *logic.User, publication *l
 	return result.Error
 }
 
-// GetByUser returns list of user's subscriptions
-func (subsStorage *SubscriptionPostgres) GetByUser(user *logic.User) ([]logic.Publication, error) {
+// GetSubsByUser returns list of user's subscriptions
+func (subsStorage *SubscriptionPostgres) GetSubsByUser(user *logic.User) ([]logic.Publication, error) {
 	var pubs []logic.Publication
 	result := subsStorage.db.Model(&logic.Publication{}).Where("user_id = ?", user.ID).Find(&pubs)
 	return pubs, result.Error

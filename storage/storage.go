@@ -7,10 +7,10 @@ import (
 
 // User interface defines methods for User Storage
 type User interface {
-	Register(user *logic.User) error              // Adds user in databse
-	Unregister(user *logic.User) error            // Removes user from database
-	GetByChatID(chatID uint) (*logic.User, error) // Returns user by chat id
-	Update(user *logic.User) error                // Updates user
+	Register(user *logic.User) error                    // Adds user in databse
+	Unregister(user *logic.User) error                  // Removes user from database
+	GetUserByChatID(chatID uint64) (*logic.User, error) // Returns user by chat id
+	Update(user *logic.User) error                      // Updates user
 }
 
 // Subscription interface defines methods for Publicaiton Storage
@@ -18,13 +18,13 @@ type Subscription interface {
 	Add(user *logic.User, publication *logic.Publication) error    // Adds new subscription to user with publication
 	Remove(user *logic.User, publication *logic.Publication) error // Removes existing sybscription from user
 	Update(user *logic.User, publication *logic.Publication) error // Updates selected subscription
-	GetByUser(user *logic.User) ([]logic.Publication, error)       // Returns list of user's subscriptions
+	GetSubsByUser(user *logic.User) ([]logic.Publication, error)   // Returns list of user's subscriptions
 }
 
 // Info interface definces methods for Info Storage
 type Info interface {
-	GetLastTimestamp() uint    // Returns time of the latest post
-	SetLastTimestamp(tsp uint) // Sets time of the latest post
+	GetLastTimestamp() uint64    // Returns time of the latest post
+	SetLastTimestamp(tsp uint64) // Sets time of the latest post
 }
 
 // Storage struct is used to access database
