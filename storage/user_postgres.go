@@ -35,3 +35,9 @@ func (userStorage *UserPostgres) GetByChatID(chatID uint) (*logic.User, error) {
 	result := userStorage.db.Where("ChatID = ?", chatID).First(&user)
 	return &user, result.Error
 }
+
+// Update user
+func (userStorage *UserPostgres) Update(user *logic.User) error {
+	result := userStorage.db.Save(user)
+	return result.Error
+}

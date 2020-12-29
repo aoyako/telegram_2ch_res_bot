@@ -10,9 +10,10 @@ type User interface {
 	Register(user *logic.User) error              // Adds user in databse
 	Unregister(user *logic.User) error            // Removes user from database
 	GetByChatID(chatID uint) (*logic.User, error) // Returns user by chat id
+	Update(user *logic.User) error                // Updates user
 }
 
-// Subscription interface defines methods for User Storage
+// Subscription interface defines methods for Publicaiton Storage
 type Subscription interface {
 	Add(user *logic.User, publication *logic.Publication) error    // Adds new subscription to user with publication
 	Remove(user *logic.User, publication *logic.Publication) error // Removes existing sybscription from user
