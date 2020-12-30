@@ -41,3 +41,10 @@ func (subsStorage *SubscriptionPostgres) GetSubsByUser(user *logic.User) ([]logi
 	result := subsStorage.db.Model(&logic.Publication{}).Where("user_id = ?", user.ID).Find(&pubs)
 	return pubs, result.Error
 }
+
+// GetAllSubs Returns all publications
+func (subsStorage *SubscriptionPostgres) GetAllSubs() []logic.Publication {
+	pubs := make([]logic.Publication, 0)
+	subsStorage.db.Model(&logic.Publication{}).Find(&pubs)
+	return pubs
+}

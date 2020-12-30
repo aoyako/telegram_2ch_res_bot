@@ -30,3 +30,10 @@ func (ucon *UserController) Unregister(chatID uint64) error {
 	}
 	return ucon.stg.Unregister(user)
 }
+
+// GetUserByPublication returns owner of publication
+func (ucon *UserController) GetUserByPublication(pub *logic.Publication) (*logic.User, error) {
+	user, err := ucon.stg.GetUserByPublication(pub)
+
+	return user, err
+}

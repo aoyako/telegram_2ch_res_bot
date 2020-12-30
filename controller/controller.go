@@ -7,8 +7,9 @@ import (
 
 // User interface defines methods for User Controller
 type User interface {
-	Register(chatID uint64) error   // Performs user registration
-	Unregister(chatID uint64) error // Performs user deregistration
+	Register(chatID uint64) error                                     // Performs user registration
+	Unregister(chatID uint64) error                                   // Performs user deregistration
+	GetUserByPublication(pub *logic.Publication) (*logic.User, error) // Returns owner of publication
 }
 
 // Subscription interface defines methods for Publication Controller
@@ -17,6 +18,7 @@ type Subscription interface {
 	Remove(chatID uint64, number uint) error                    // Removes existing sybscription from user
 	Update(chatID uint64, request string) error                 // Updates selected subscription
 	GetSubsByChatID(chatID uint64) ([]logic.Publication, error) // Returns all user's subs
+	GetAllSubs() []logic.Publication                            // Returns all publications
 }
 
 // Info interface definces methods for Info Controller

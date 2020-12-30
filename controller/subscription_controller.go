@@ -80,6 +80,11 @@ func (scon *SubscriptionController) GetSubsByChatID(chatID uint64) ([]logic.Publ
 	return subs, nil
 }
 
+// GetAllSubs Returns all publications
+func (scon *SubscriptionController) GetAllSubs() []logic.Publication {
+	return scon.stg.GetAllSubs()
+}
+
 // Parses request string
 // Request string format: "board_name {.img | .webm | .gif} ["keyword1",...]"
 func parseRequest(req string) (*logic.Publication, error) {

@@ -7,10 +7,12 @@ import (
 
 // User interface defines methods for User Storage
 type User interface {
-	Register(user *logic.User) error                    // Adds user in databse
-	Unregister(user *logic.User) error                  // Removes user from database
-	GetUserByChatID(chatID uint64) (*logic.User, error) // Returns user by chat id
-	Update(user *logic.User) error                      // Updates user
+	Register(user *logic.User) error                                  // Adds user in databse
+	Unregister(user *logic.User) error                                // Removes user from database
+	GetUserByChatID(chatID uint64) (*logic.User, error)               // Returns user by chat id
+	Update(user *logic.User) error                                    // Updates user
+	GetUserByID(userID uint) (*logic.User, error)                     // Returns user by it's id
+	GetUserByPublication(pub *logic.Publication) (*logic.User, error) // Returns owner of publication
 }
 
 // Subscription interface defines methods for Publicaiton Storage
@@ -19,6 +21,7 @@ type Subscription interface {
 	Remove(user *logic.User, publication *logic.Publication) error // Removes existing sybscription from user
 	Update(user *logic.User, publication *logic.Publication) error // Updates selected subscription
 	GetSubsByUser(user *logic.User) ([]logic.Publication, error)   // Returns list of user's subscriptions
+	GetAllSubs() []logic.Publication                               // Returns all publications
 }
 
 // Info interface definces methods for Info Storage

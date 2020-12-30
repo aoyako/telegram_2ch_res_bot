@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/aoyako/telegram_2ch_res_bot/controller"
+	"github.com/aoyako/telegram_2ch_res_bot/logic"
 	telebot "gopkg.in/tucnak/telebot.v2"
 )
 
@@ -39,4 +40,12 @@ func SetupHandlers(tb *TgBot) {
 	tb.Bot.Handle("/help", help(tb))
 	tb.Bot.Handle("/add", add(tb))
 	tb.Bot.Handle("/rm", del(tb))
+}
+
+func (tb *TgBot) GetMessageFunc() func(user *logic.User, message interface{}) {
+	return func(user *logic.User, message interface{}) {
+		tb.Bot.Send(&telebot.User{
+			ID: int(user.ChatID),
+		}, message)
+	}
 }

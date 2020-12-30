@@ -21,7 +21,7 @@ func NewUserPostgres(db *gorm.DB) *UserPostgres {
 func (userStorage *UserPostgres) Register(user *logic.User) error {
 	var tUser logic.User
 	exists := userStorage.db.Where("chat_id = ?", user.ChatID).First(&tUser)
-	if !(exists.RowsAffected > 0) {
+	if exists.Error != nil {
 		result := userStorage.db.Create(user)
 		return result.Error
 	}
@@ -45,4 +45,20 @@ func (userStorage *UserPostgres) GetUserByChatID(chatID uint64) (*logic.User, er
 func (userStorage *UserPostgres) Update(user *logic.User) error {
 	result := userStorage.db.Save(user)
 	return result.Error
+}
+
+// GetUserByID returns user by it's id
+func (userStorage *UserPostgres) GetUserByID(userID uint) (*logic.User, error) {
+	var user logic.User
+	result := userStorage.db.Where("id = ?", userID).First(&user)
+
+	return &user, result.Error
+}
+
+// GetUserByPublication returns owner of publication
+func (userStorage *UserPostgres) GetUserByPublication(pub *logic.Publication) (*logic.User, error) {
+	var user logic.User
+	result := userStorage.db.Where("id = ?", pub.UserID).First(&user)
+
+	return &user, result.Error
 }
