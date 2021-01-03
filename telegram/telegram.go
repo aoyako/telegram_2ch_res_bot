@@ -48,12 +48,11 @@ func SetupHandlers(tb *TgBot) {
 	tb.Bot.Handle("/rm", del(tb))
 }
 
+// Send files to users
 func (tb *TgBot) Send(users []*logic.User, path, caption string) {
 	if len(users) == 0 {
 		return
 	}
-	// img := &telebot.Video{File: telebot.FromDisk("vid.mp4")}
-	// fmt.Println(path)
 	var file telebot.Sendable
 	if strings.HasSuffix(path, ".mp4") {
 		file = &telebot.Video{File: telebot.FromURL(path), Caption: caption}

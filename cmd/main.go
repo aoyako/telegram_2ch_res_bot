@@ -28,6 +28,12 @@ func main() {
 		Password: os.Getenv("DB_PASSWORD"),
 	})
 
+	requestURL := &dvach.RequestURL{
+		AllThreadsURL: viper.GetString("dapi.all"),
+		ThreadURL:     viper.GetString("dapi.thread"),
+		ResourceURL:   viper.GetString("dapi.resource"),
+	}
+
 	// db.AutoMigrate(&logic.User{}, &logic.Publication{}, &logic.Info{})
 
 	// storage.MigrateDatabase(db)
@@ -48,7 +54,7 @@ func main() {
 	telegram.SetupHandlers(bot)
 	// bot.Bot.Start()
 
-	apicnt := dvach.NewAPIController(controller, bot)
+	apicnt := dvach.NewAPIController(controller, bot, requestURL)
 	go apicnt.InitiateSending()
 	bot.Bot.Start()
 }

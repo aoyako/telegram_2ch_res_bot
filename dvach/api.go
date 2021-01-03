@@ -59,8 +59,8 @@ type ThreadData struct {
 }
 
 // NewAPIController constructor of APIController
-func NewAPIController(cnt *controller.Controller, snd telegram.Sender) *APIController {
+func NewAPIController(cnt *controller.Controller, snd telegram.Sender, rU *RequestURL) *APIController {
 	return &APIController{
-		APIWorker: NewAPIWorkerDvach(cnt, snd),
+		APIWorker: NewAPIWorkerDvach(cnt, snd, rU),
 	}
 }

@@ -8,19 +8,17 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"sync"
 
 	"github.com/aoyako/telegram_2ch_res_bot/controller"
 	"github.com/aoyako/telegram_2ch_res_bot/logic"
 	"github.com/aoyako/telegram_2ch_res_bot/telegram"
 )
 
-var DatabaseLock sync.Mutex
-
 // APIWorkerDvach represents struct to work with external api
 type APIWorkerDvach struct {
-	cnt    *controller.Controller
-	Sender telegram.Sender
+	cnt        *controller.Controller
+	Sender     telegram.Sender
+	RequestURL *RequestURL
 }
 
 // SourceType specify user's file extensions choice
@@ -38,10 +36,11 @@ type UserRequest struct {
 }
 
 // NewAPIWorkerDvach constructor for APIWorkerDvach
-func NewAPIWorkerDvach(cnt *controller.Controller, snd telegram.Sender) *APIWorkerDvach {
+func NewAPIWorkerDvach(cnt *controller.Controller, snd telegram.Sender, rU *RequestURL) *APIWorkerDvach {
 	return &APIWorkerDvach{
-		cnt:    cnt,
-		Sender: snd,
+		cnt:        cnt,
+		Sender:     snd,
+		RequestURL: rU,
 	}
 }
 
@@ -59,13 +58,13 @@ func (dw *APIWorkerDvach) InitiateSending() {
 	}
 
 	for board := range boards {
-		processBoard(dw, subs, users, board)
+		dw.processBoard(subs, users, board)
 	}
 }
 
 // Process request from board
-func processBoard(dw *APIWorkerDvach, subs []logic.Publication, users []*logic.User, board string) {
-	resp, err := http.Get(fmt.Sprintf("https://2ch.hk/%s/threads.json", board))
+func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, users []*logic.User, board string) {
+	resp, err := http.Get(fmt.Sprintf(dw.RequestURL.AllThreadsURL, board))
 	if err != nil {
 		log.Fatalf("Error creating request to 2ch.hk: %s", err.Error())
 	}
@@ -105,13 +104,13 @@ func processBoard(dw *APIWorkerDvach, subs []logic.Publication, users []*logic.U
 
 	for threadID, subsList := range usedThreads {
 		URLThreadID := list.Threads[threadID].ID
-		processThread(dw, board, URLThreadID, subsList)
+		dw.processThread(board, URLThreadID, subsList)
 	}
 }
 
 // Process requests from thread
-func processThread(dw *APIWorkerDvach, board, URLThreadID string, subsList []UserRequest) {
-	resp, err := http.Get(fmt.Sprintf("https://2ch.hk/%s/res/%s.json", board, URLThreadID))
+func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []UserRequest) {
+	resp, err := http.Get(fmt.Sprintf(dw.RequestURL.ThreadURL, board, URLThreadID))
 	if err != nil {
 		log.Fatalf("Error creating request to 2ch.hk: %s", err.Error())
 	}
@@ -139,7 +138,7 @@ func processThread(dw *APIWorkerDvach, board, URLThreadID string, subsList []Use
 						fileReceivers = append(fileReceivers, sub.User)
 					}
 				}
-				go dw.Sender.Send(fileReceivers, fmt.Sprintf("https://2ch.hk%s", file.Path), "")
+				go dw.Sender.Send(fileReceivers, fmt.Sprintf(dw.RequestURL.ResourceURL, file.Path), "")
 			}
 
 			if post.Timestamp > currentTimestamp {
@@ -148,12 +147,7 @@ func processThread(dw *APIWorkerDvach, board, URLThreadID string, subsList []Use
 		}
 	}
 
-	DatabaseLock.Lock()
-	lastTimestamp = dw.cnt.GetLastTimestamp()
-	if lastTimestamp < currentTimestamp {
-		dw.cnt.SetLastTimestamp(currentTimestamp)
-	}
-	DatabaseLock.Unlock()
+	dw.cnt.SetLastTimestamp(currentTimestamp)
 	fmt.Println("Finished sending")
 }
 
