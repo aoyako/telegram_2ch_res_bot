@@ -1,10 +1,15 @@
 package controller
 
-import "github.com/aoyako/telegram_2ch_res_bot/storage"
+import (
+	"sync"
+
+	"github.com/aoyako/telegram_2ch_res_bot/storage"
+)
 
 // InfoController is an implementation of controller.Info
 type InfoController struct {
 	stg *storage.Storage
+	m   sync.Mutex
 }
 
 // NewInfoController constructor of InfoController struct
@@ -19,5 +24,10 @@ func (icon *InfoController) GetLastTimestamp() uint64 {
 
 // SetLastTimestamp sets time of the latest post
 func (icon *InfoController) SetLastTimestamp(tsp uint64) {
-	icon.stg.SetLastTimestamp(tsp)
+	icon.m.Lock()
+	last := icon.GetLastTimestamp()
+	if last < tsp {
+		icon.stg.SetLastTimestamp(tsp)
+	}
+	icon.m.Unlock()
 }

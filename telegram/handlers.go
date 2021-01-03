@@ -38,7 +38,7 @@ func list(tb *TgBot) func(m *telebot.Message) {
 // /help endpoint
 func help(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
-		tb.Bot.Send(m.Sender, HELP_MESSAGE, telebot.ModeMarkdown)
+		tb.Bot.Send(m.Sender, HelpMessage, telebot.ModeMarkdown)
 	}
 }
 

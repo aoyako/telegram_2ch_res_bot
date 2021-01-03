@@ -4,11 +4,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/aoyako/telegram_2ch_res_bot/controller"
+	"github.com/aoyako/telegram_2ch_res_bot/downloader"
 
-	"github.com/aoyako/telegram_2ch_res_bot/logic"
-	"github.com/aoyako/telegram_2ch_res_bot/storage"
+	"github.com/aoyako/telegram_2ch_res_bot/controller"
+	"github.com/aoyako/telegram_2ch_res_bot/dvach"
 	"github.com/aoyako/telegram_2ch_res_bot/telegram"
+
+	"github.com/aoyako/telegram_2ch_res_bot/storage"
 	"github.com/spf13/viper"
 )
 
@@ -26,12 +28,19 @@ func main() {
 		Password: os.Getenv("DB_PASSWORD"),
 	})
 
-	db.AutoMigrate(&logic.User{}, &logic.Publication{}, &logic.Info{})
+	requestURL := &dvach.RequestURL{
+		AllThreadsURL: viper.GetString("dapi.all"),
+		ThreadURL:     viper.GetString("dapi.thread"),
+		ResourceURL:   viper.GetString("dapi.resource"),
+	}
+
+	// db.AutoMigrate(&logic.User{}, &logic.Publication{}, &logic.Info{})
 
 	// storage.MigrateDatabase(db)
 
-	storage := storage.NewStorage(db)
-	controller := controller.NewController(storage)
+	Storage := storage.NewStorage(db)
+	storage.MigrateDatabase(db)
+	controller := controller.NewController(Storage)
 	// storage.User.Register(&logic.User{})
 	// usr, _ := storage.User.GetByChatID(0)
 	// storage.Subscription.Add(usr, &logic.Publication{UserID: 1})
@@ -41,8 +50,12 @@ func main() {
 	}
 
 	// fmt.Println("hello world")
-	bot := telegram.NewTelegramBot(os.Getenv("BOT_TOKEN"), controller)
+	bot := telegram.NewTelegramBot(os.Getenv("BOT_TOKEN"), controller, downloader.NewDownloader("src", 1024*1024*1024))
 	telegram.SetupHandlers(bot)
+	// bot.Bot.Start()
+
+	apicnt := dvach.NewAPIController(controller, bot, requestURL)
+	go apicnt.InitiateSending()
 	bot.Bot.Start()
 }
 
