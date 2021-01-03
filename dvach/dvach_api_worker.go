@@ -8,15 +8,19 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/aoyako/telegram_2ch_res_bot/controller"
 	"github.com/aoyako/telegram_2ch_res_bot/logic"
+	"github.com/aoyako/telegram_2ch_res_bot/telegram"
 )
+
+var DatabaseLock sync.Mutex
 
 // APIWorkerDvach represents struct to work with external api
 type APIWorkerDvach struct {
-	cnt        *controller.Controller
-	NotifyFunc func(user *logic.User, data interface{})
+	cnt    *controller.Controller
+	Sender telegram.Sender
 }
 
 // SourceType specify user's file extensions choice
@@ -34,19 +38,17 @@ type UserRequest struct {
 }
 
 // NewAPIWorkerDvach constructor for APIWorkerDvach
-func NewAPIWorkerDvach(cnt *controller.Controller) *APIWorkerDvach {
+func NewAPIWorkerDvach(cnt *controller.Controller, snd telegram.Sender) *APIWorkerDvach {
 	return &APIWorkerDvach{
-		cnt: cnt,
+		cnt:    cnt,
+		Sender: snd,
 	}
-}
-
-// SetSenderFunc sets function to be executed as send command
-func (dw *APIWorkerDvach) SetSenderFunc(fn func(user *logic.User, data interface{})) {
-	dw.NotifyFunc = fn
 }
 
 // InitiateSending loads data from server and sending it to users
 func (dw *APIWorkerDvach) InitiateSending() {
+	fmt.Println("started sending")
+
 	boards := make(map[string]bool)
 	subs := dw.cnt.GetAllSubs()
 	users := make([]*logic.User, len(subs))
@@ -128,23 +130,30 @@ func processThread(dw *APIWorkerDvach, board, URLThreadID string, subsList []Use
 	currentTimestamp := lastTimestamp
 
 	for _, post := range threadData.ThreadPosts[0].Posts {
-		for _, sub := range subsList {
-			if post.Timestamp > lastTimestamp {
-				files := post.Files
-				for _, file := range files {
+		if post.Timestamp > lastTimestamp {
+			files := post.Files
+			for _, file := range files {
+				fileReceivers := make([]*logic.User, 0)
+				for _, sub := range subsList {
 					if checkFileExtension(file.Name, sub.Request) {
-						dw.NotifyFunc(sub.User, fmt.Sprintf("https://2ch.hk/%s", file.Path))
+						fileReceivers = append(fileReceivers, sub.User)
 					}
 				}
+				go dw.Sender.Send(fileReceivers, fmt.Sprintf("https://2ch.hk%s", file.Path), "")
+			}
 
-				if post.Timestamp > currentTimestamp {
-					currentTimestamp = post.Timestamp
-				}
+			if post.Timestamp > currentTimestamp {
+				currentTimestamp = post.Timestamp
 			}
 		}
 	}
 
-	dw.cnt.SetLastTimestamp(currentTimestamp)
+	DatabaseLock.Lock()
+	lastTimestamp = dw.cnt.GetLastTimestamp()
+	if lastTimestamp < currentTimestamp {
+		dw.cnt.SetLastTimestamp(currentTimestamp)
+	}
+	DatabaseLock.Unlock()
 	fmt.Println("Finished sending")
 }
 

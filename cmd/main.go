@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/aoyako/telegram_2ch_res_bot/downloader"
+
 	"github.com/aoyako/telegram_2ch_res_bot/controller"
 	"github.com/aoyako/telegram_2ch_res_bot/dvach"
 	"github.com/aoyako/telegram_2ch_res_bot/telegram"
@@ -42,14 +44,12 @@ func main() {
 	}
 
 	// fmt.Println("hello world")
-	bot := telegram.NewTelegramBot(os.Getenv("BOT_TOKEN"), controller)
+	bot := telegram.NewTelegramBot(os.Getenv("BOT_TOKEN"), controller, downloader.NewDownloader("src", 1024*1024*1024))
 	telegram.SetupHandlers(bot)
 	// bot.Bot.Start()
 
-	apicnt := dvach.NewAPIController(controller)
-	apicnt.SetSenderFunc(bot.GetMessageFunc())
-	apicnt.InitiateSending()
-
+	apicnt := dvach.NewAPIController(controller, bot)
+	go apicnt.InitiateSending()
 	bot.Bot.Start()
 }
 

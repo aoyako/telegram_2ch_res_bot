@@ -2,12 +2,11 @@ package dvach
 
 import (
 	"github.com/aoyako/telegram_2ch_res_bot/controller"
-	"github.com/aoyako/telegram_2ch_res_bot/logic"
+	"github.com/aoyako/telegram_2ch_res_bot/telegram"
 )
 
 // APIWorker for working with external api
 type APIWorker interface {
-	SetSenderFunc(func(user *logic.User, data interface{}))
 	InitiateSending()
 }
 
@@ -60,8 +59,8 @@ type ThreadData struct {
 }
 
 // NewAPIController constructor of APIController
-func NewAPIController(cnt *controller.Controller) *APIController {
+func NewAPIController(cnt *controller.Controller, snd telegram.Sender) *APIController {
 	return &APIController{
-		APIWorker: NewAPIWorkerDvach(cnt),
+		APIWorker: NewAPIWorkerDvach(cnt, snd),
 	}
 }
