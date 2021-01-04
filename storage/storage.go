@@ -7,21 +7,26 @@ import (
 
 // User interface defines methods for User Storage
 type User interface {
-	Register(user *logic.User) error                                  // Adds user in databse
-	Unregister(user *logic.User) error                                // Removes user from database
-	GetUserByChatID(chatID uint64) (*logic.User, error)               // Returns user by chat id
-	Update(user *logic.User) error                                    // Updates user
-	GetUserByID(userID uint) (*logic.User, error)                     // Returns user by it's id
-	GetUserByPublication(pub *logic.Publication) (*logic.User, error) // Returns owner of publication
+	Register(user *logic.User) error                                    // Adds user in databse
+	Unregister(user *logic.User) error                                  // Removes user from database
+	GetUserByChatID(chatID uint64) (*logic.User, error)                 // Returns user by chat id
+	Update(user *logic.User) error                                      // Updates user
+	GetUserByID(userID uint) (*logic.User, error)                       // Returns user by it's id
+	GetUsersByPublication(pub *logic.Publication) ([]logic.User, error) // Returns owner of publication
+	IsUserAdmin(user *logic.User) bool
+	IsChatAdmin(userID uint) bool
 }
 
 // Subscription interface defines methods for Publicaiton Storage
 type Subscription interface {
 	Add(user *logic.User, publication *logic.Publication) error    // Adds new subscription to user with publication
-	Remove(user *logic.User, publication *logic.Publication) error // Removes existing sybscription from user
+	AddDefault(publication *logic.Publication) error               // Adds new subscription to user with publication
+	Remove(publication *logic.Publication) error                   // Removes existing sybscription from user
 	Update(user *logic.User, publication *logic.Publication) error // Updates selected subscription
 	GetSubsByUser(user *logic.User) ([]logic.Publication, error)   // Returns list of user's subscriptions
 	GetAllSubs() []logic.Publication                               // Returns all publications
+	GetAllDefaultSubs() ([]logic.Publication, error)
+	Connect(user *logic.User, publication *logic.Publication) error
 }
 
 // Info interface definces methods for Info Storage
@@ -38,9 +43,9 @@ type Storage struct {
 }
 
 // NewStorage constructor of Storage
-func NewStorage(db *gorm.DB) *Storage {
+func NewStorage(db *gorm.DB, cfg *InitDatabase) *Storage {
 	return &Storage{
-		User:         NewUserPostgres(db),
+		User:         NewUserPostgres(db, cfg),
 		Subscription: NewSubscriptionPostgres(db),
 		Info:         NewInfoPostgres(db),
 	}

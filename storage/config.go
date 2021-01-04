@@ -9,3 +9,8 @@ type Config struct {
 	Port     string
 	SSLMode  string
 }
+
+// InitDatabase configuration struct to database data
+type InitDatabase struct {
+	Admin []uint64
+}

@@ -23,7 +23,7 @@ func formatPostgresConfig(cfg Config) string {
 
 // MigrateDatabase migrates database
 func MigrateDatabase(db *gorm.DB) {
-	err := db.AutoMigrate(&logic.User{}, &logic.Publication{}, &logic.Info{})
+	err := db.AutoMigrate(&logic.User{}, &logic.Admin{}, &logic.Publication{}, &logic.Info{})
 
 	if err != nil {
 		log.Fatalf("Error migrating database")

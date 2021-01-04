@@ -24,9 +24,21 @@ func start(tb *TgBot) func(m *telebot.Message) {
 }
 
 // /list endpoint
-func list(tb *TgBot) func(m *telebot.Message) {
+func subs(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		subs, err := tb.Controller.Subscription.GetSubsByChatID(uint64(m.Chat.ID))
+		if err != nil {
+			tb.Bot.Send(m.Sender, "Bad request")
+		}
+		result := marshallSubs(subs)
+		tb.Bot.Send(m.Sender, result)
+	}
+}
+
+// /list endpoint
+func list(tb *TgBot) func(m *telebot.Message) {
+	return func(m *telebot.Message) {
+		subs, err := tb.Controller.Subscription.GetAllDefaultSubs()
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad request")
 		}
@@ -43,7 +55,7 @@ func help(tb *TgBot) func(m *telebot.Message) {
 }
 
 // /add endpoint
-func add(tb *TgBot) func(m *telebot.Message) {
+func create(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		args, err := parseCommand(m.Text)
 		if err != nil {
@@ -51,7 +63,45 @@ func add(tb *TgBot) func(m *telebot.Message) {
 			return
 		}
 
-		err = tb.Controller.Add(uint64(m.Chat.ID), args)
+		err = tb.Controller.AddNew(uint64(m.Chat.ID), args)
+		if err != nil {
+			tb.Bot.Send(m.Sender, "Bad request")
+			return
+		}
+
+		tb.Bot.Send(m.Sender, "OK")
+	}
+}
+
+// /add endpoint
+func subscribe(tb *TgBot) func(m *telebot.Message) {
+	return func(m *telebot.Message) {
+		args, err := parseCommand(m.Text)
+		if err != nil {
+			tb.Bot.Send(m.Sender, "Bad request")
+			return
+		}
+
+		err = tb.Controller.Subscription.Subscribe(uint64(m.Chat.ID), args)
+		if err != nil {
+			tb.Bot.Send(m.Sender, "Bad request")
+			return
+		}
+
+		tb.Bot.Send(m.Sender, "OK")
+	}
+}
+
+// /add endpoint
+func createDefault(tb *TgBot) func(m *telebot.Message) {
+	return func(m *telebot.Message) {
+		args, err := parseCommand(m.Text)
+		if err != nil {
+			tb.Bot.Send(m.Sender, "Bad request")
+			return
+		}
+
+		err = tb.Controller.Create(uint64(m.Chat.ID), args)
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad request")
 			return
@@ -78,6 +128,32 @@ func del(tb *TgBot) func(m *telebot.Message) {
 		}
 
 		err = tb.Controller.Subscription.Remove(uint64(m.Chat.ID), uint(num))
+		if err != nil {
+			tb.Bot.Send(m.Sender, "Bad index")
+			return
+		}
+
+		tb.Bot.Send(m.Sender, "OK")
+	}
+}
+
+// /del endpoint
+func removeDefault(tb *TgBot) func(m *telebot.Message) {
+	return func(m *telebot.Message) {
+		args, err := parseCommand(m.Text)
+		if err != nil {
+			tb.Bot.Send(m.Sender, "Bad request")
+			return
+		}
+
+		num, err := strconv.Atoi(args)
+		num--
+		if err != nil || num < 0 {
+			tb.Bot.Send(m.Sender, "Bad index")
+			return
+		}
+
+		err = tb.Controller.Subscription.RemoveDefault(uint64(m.Chat.ID), uint(num))
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad index")
 			return

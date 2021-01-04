@@ -3,11 +3,12 @@ package main
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/aoyako/telegram_2ch_res_bot/downloader"
+	"github.com/aoyako/telegram_2ch_res_bot/dvach"
 
 	"github.com/aoyako/telegram_2ch_res_bot/controller"
-	"github.com/aoyako/telegram_2ch_res_bot/dvach"
 	"github.com/aoyako/telegram_2ch_res_bot/telegram"
 
 	"github.com/aoyako/telegram_2ch_res_bot/storage"
@@ -28,22 +29,19 @@ func main() {
 		Password: os.Getenv("DB_PASSWORD"),
 	})
 
+	admins := storage.InitDatabase{
+		Admin: stringToUint64Slice(viper.GetStringSlice("tg.admin_id")),
+	}
+
 	requestURL := &dvach.RequestURL{
 		AllThreadsURL: viper.GetString("dapi.all"),
 		ThreadURL:     viper.GetString("dapi.thread"),
 		ResourceURL:   viper.GetString("dapi.resource"),
 	}
 
-	// db.AutoMigrate(&logic.User{}, &logic.Publication{}, &logic.Info{})
-
-	// storage.MigrateDatabase(db)
-
-	Storage := storage.NewStorage(db)
+	Storage := storage.NewStorage(db, &admins)
 	storage.MigrateDatabase(db)
 	controller := controller.NewController(Storage)
-	// storage.User.Register(&logic.User{})
-	// usr, _ := storage.User.GetByChatID(0)
-	// storage.Subscription.Add(usr, &logic.Publication{UserID: 1})
 
 	if err != nil {
 		log.Fatal(err.Error())
@@ -52,7 +50,6 @@ func main() {
 	// fmt.Println("hello world")
 	bot := telegram.NewTelegramBot(os.Getenv("BOT_TOKEN"), controller, downloader.NewDownloader("src", 1024*1024*1024))
 	telegram.SetupHandlers(bot)
-	// bot.Bot.Start()
 
 	apicnt := dvach.NewAPIController(controller, bot, requestURL)
 	go apicnt.InitiateSending()
@@ -64,4 +61,16 @@ func initConfig() error {
 	viper.SetConfigName("config")
 
 	return viper.ReadInConfig()
+}
+
+func stringToUint64Slice(data []string) []uint64 {
+	result := make([]uint64, len(data))
+	for key := range data {
+		tmp, err := strconv.ParseUint(data[key], 10, 64)
+		if err != nil {
+			panic(err)
+		}
+		result[key] = tmp
+	}
+	return result
 }

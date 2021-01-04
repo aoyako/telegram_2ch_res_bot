@@ -1,26 +1,32 @@
 package logic
 
-import "gorm.io/gorm"
-
 // User stores info about user
 type User struct {
-	gorm.Model
+	ID        int
 	ChatID    uint64        `gorm:"uniqueIndex"` // Telegram's chat id
 	SubsCount uint          // Amount of current subscribtions
-	Subs      []Publication `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // User's subscriptions
+	Subs      []Publication `gorm:"many2many:user_subscribtion;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // User's subscriptions
+	Admin     Admin         `gorm:"foreignKey:UserID"`
+}
+
+// Admin stores info about admins
+type Admin struct {
+	ID     int
+	UserID uint64
 }
 
 // Publication stores info about origin of data sent to user
 type Publication struct {
-	gorm.Model
-	Board  string // 2ch board name
-	Tags   string // Array of strings to search in thread title
-	UserID uint   // Publication owner
-	Type   string
+	ID        int
+	Board     string // 2ch board name
+	Tags      string // Array of strings to search in thread title
+	IsDefault bool   // Publication owner
+	Type      string
+	Users     []User `gorm:"many2many:user_subscribtion;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 // Info stores addition information about bot
 type Info struct {
-	gorm.Model
+	ID       int
 	LastPost uint64 // Time of the latest post
 }

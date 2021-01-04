@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 
 	"github.com/aoyako/telegram_2ch_res_bot/logic"
 	"github.com/aoyako/telegram_2ch_res_bot/storage"
@@ -19,8 +20,8 @@ func NewSubscriptionController(stg *storage.Storage) *SubscriptionController {
 	return &SubscriptionController{stg: stg}
 }
 
-// Add new subscription to user with publication
-func (scon *SubscriptionController) Add(chatID uint64, request string) error {
+// AddNew creates a subscription to user with publication
+func (scon *SubscriptionController) AddNew(chatID uint64, request string) error {
 	user, err := scon.stg.GetUserByChatID(chatID)
 	if err != nil {
 		return err
@@ -35,9 +36,49 @@ func (scon *SubscriptionController) Add(chatID uint64, request string) error {
 	if err != nil {
 		return err
 	}
-	publication.UserID = user.ID
 
-	return scon.stg.Subscription.Add(user, publication)
+	result := scon.stg.Subscription.Add(user, publication)
+	return result
+}
+
+// Create default subscribtion
+func (scon *SubscriptionController) Create(chatID uint64, request string) error {
+	if !scon.stg.IsChatAdmin(uint(chatID)) {
+		return errors.New("Access denied")
+	}
+	publication, err := parseRequest(request)
+	if err != nil {
+		return err
+	}
+	publication.IsDefault = true
+
+	return scon.stg.Subscription.AddDefault(publication)
+}
+
+// Subscribe user to publication
+func (scon *SubscriptionController) Subscribe(chatID uint64, request string) error {
+	user, err := scon.stg.GetUserByChatID(chatID)
+	if err != nil {
+		return err
+	}
+	user.SubsCount++
+	err = scon.stg.User.Update(user)
+	if err != nil {
+		return err
+	}
+
+	pubID, err := strconv.Atoi(request)
+	if err != nil {
+		return err
+	}
+	pubID--
+
+	pubs, _ := scon.stg.GetAllDefaultSubs()
+	if pubID >= len(pubs) {
+		return errors.New("Bad Index")
+	}
+
+	return scon.stg.Subscription.Connect(user, &pubs[pubID])
 }
 
 // Remove existing sybscription from user
@@ -56,7 +97,25 @@ func (scon *SubscriptionController) Remove(chatID uint64, number uint) error {
 		return fmt.Errorf("Number %d extends amount of subscribtions", number)
 	}
 
-	return scon.stg.Subscription.Remove(user, &subs[number])
+	return scon.stg.Subscription.Remove(&subs[number])
+}
+
+// RemoveDefault deletes default publication
+func (scon *SubscriptionController) RemoveDefault(chatID uint64, number uint) error {
+	if !scon.stg.IsChatAdmin(uint(chatID)) {
+		return errors.New("Access denied")
+	}
+
+	subs, err := scon.stg.Subscription.GetAllDefaultSubs()
+	if err != nil {
+		return fmt.Errorf("Cannot get subs: %s", err.Error())
+	}
+
+	if len(subs) <= int(number) {
+		return fmt.Errorf("Number %d extends amount of subscribtions", number)
+	}
+
+	return scon.stg.Subscription.Remove(&subs[number])
 }
 
 // Update selected subscription
@@ -80,9 +139,14 @@ func (scon *SubscriptionController) GetSubsByChatID(chatID uint64) ([]logic.Publ
 	return subs, nil
 }
 
-// GetAllSubs Returns all publications
+// GetAllSubs returns all publications
 func (scon *SubscriptionController) GetAllSubs() []logic.Publication {
 	return scon.stg.GetAllSubs()
+}
+
+// GetAllDefaultSubs returns all default publications
+func (scon *SubscriptionController) GetAllDefaultSubs() ([]logic.Publication, error) {
+	return scon.stg.GetAllDefaultSubs()
 }
 
 // Parses request string

@@ -48,22 +48,23 @@ func NewAPIWorkerDvach(cnt *controller.Controller, snd telegram.Sender, rU *Requ
 func (dw *APIWorkerDvach) InitiateSending() {
 	fmt.Println("started sending")
 
-	boards := make(map[string]bool)
+	boardSubs := make(map[string][]logic.Publication)
 	subs := dw.cnt.GetAllSubs()
-	users := make([]*logic.User, len(subs))
 
 	for i := range subs {
-		boards[subs[i].Board] = true
-		users[i], _ = dw.cnt.GetUserByPublication(&subs[i])
+		boardSubs[subs[i].Board] = append(boardSubs[subs[i].Board], subs[i])
+		// users[i], _ = dw.cnt.GetUsersByPublication(&subs[i])
 	}
 
-	for board := range boards {
-		dw.processBoard(subs, users, board)
+	// fmt.Println(subs)
+
+	for key := range boardSubs {
+		dw.processBoard(boardSubs[key], key)
 	}
 }
 
 // Process request from board
-func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, users []*logic.User, board string) {
+func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string) {
 	resp, err := http.Get(fmt.Sprintf(dw.RequestURL.AllThreadsURL, board))
 	if err != nil {
 		log.Fatalf("Error creating request to 2ch.hk: %s", err.Error())
@@ -79,6 +80,14 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, users []*logic.
 		log.Fatalf("Error unmarshalling request body: %s", err.Error())
 	}
 
+	users := make([][]logic.User, len(subs))
+	for subID := range subs {
+		userToAppend, _ := dw.cnt.GetUsersByPublication(&subs[subID])
+		users[subID] = userToAppend
+	}
+
+	fmt.Println(users)
+
 	usedThreads := make(map[int]([]UserRequest))
 
 	subKeywords := make([][]string, len(subs))
@@ -92,10 +101,12 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, users []*logic.
 		for subID := range subs {
 			for _, keyword := range subKeywords[subID] {
 				if strings.Contains(thread.Comment, keyword) {
-					usedThreads[threadID] = append(usedThreads[threadID], UserRequest{
-						User:    users[subID],
-						Request: subTypes[subID],
-					})
+					for _, user := range users[subID] {
+						usedThreads[threadID] = append(usedThreads[threadID], UserRequest{
+							User:    &user,
+							Request: subTypes[subID],
+						})
+					}
 					break
 				}
 			}
