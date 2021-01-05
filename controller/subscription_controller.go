@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/aoyako/telegram_2ch_res_bot/logic"
 	"github.com/aoyako/telegram_2ch_res_bot/storage"
@@ -46,7 +47,7 @@ func (scon *SubscriptionController) Create(chatID uint64, request string) error 
 	if !scon.stg.IsChatAdmin(uint(chatID)) {
 		return errors.New("Access denied")
 	}
-	publication, err := parseRequest(request)
+	publication, err := parseRequestAlias(request)
 	if err != nil {
 		return err
 	}
@@ -162,5 +163,27 @@ func parseRequest(req string) (*logic.Publication, error) {
 		Board: args[0],
 		Tags:  args[2],
 		Type:  args[1],
+	}, nil
+}
+
+// Parses request string with alias
+func parseRequestAlias(req string) (*logic.Publication, error) {
+	separator := regexp.MustCompile(` `)
+	args := separator.Split(req, 3)
+
+	parser := regexp.MustCompile(`" `)
+	words := parser.Split(args[len(args)-1], -1)
+
+	if len(args) != 3 {
+		return nil, errors.New("Bad request")
+	}
+
+	args[2] = strings.TrimSuffix(args[2], "\""+words[len(words)-1])
+
+	return &logic.Publication{
+		Board: args[0],
+		Tags:  strings.TrimSuffix(args[2], " "+words[len(words)-1]),
+		Type:  args[1],
+		Alias: words[len(words)-1],
 	}, nil
 }

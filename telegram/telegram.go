@@ -43,11 +43,12 @@ func NewTelegramBot(token string, cnt *controller.Controller, d *downloader.Down
 func SetupHandlers(tb *TgBot) {
 	tb.Bot.Handle("/start", start(tb))
 	tb.Bot.Handle("/list", list(tb))
+	tb.Bot.Handle("/clist", cleverList(tb))
 	tb.Bot.Handle("/help", help(tb))
 
 	tb.Bot.Handle("/subs", subs(tb))
 	tb.Bot.Handle("/create", create(tb))
-	tb.Bot.Handle("/rm", del(tb))
+	tb.Bot.Handle("/rm", deleleSub(tb))
 	tb.Bot.Handle("/subscribe", subscribe(tb))
 
 	tb.Bot.Handle("/create_default", createDefault(tb))

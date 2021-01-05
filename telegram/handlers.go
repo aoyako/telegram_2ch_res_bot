@@ -23,14 +23,14 @@ func start(tb *TgBot) func(m *telebot.Message) {
 	}
 }
 
-// /list endpoint
+// /subs endpoint
 func subs(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		subs, err := tb.Controller.Subscription.GetSubsByChatID(uint64(m.Chat.ID))
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad request")
 		}
-		result := marshallSubs(subs)
+		result := fmt.Sprintf("Your subs:%s", marshallSubs(subs, false))
 		tb.Bot.Send(m.Sender, result)
 	}
 }
@@ -42,7 +42,19 @@ func list(tb *TgBot) func(m *telebot.Message) {
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad request")
 		}
-		result := marshallSubs(subs)
+		result := fmt.Sprintf("Available subs:%s", marshallSubs(subs, true))
+		tb.Bot.Send(m.Sender, result)
+	}
+}
+
+// /clist endpoint
+func cleverList(tb *TgBot) func(m *telebot.Message) {
+	return func(m *telebot.Message) {
+		subs, err := tb.Controller.Subscription.GetAllDefaultSubs()
+		if err != nil {
+			tb.Bot.Send(m.Sender, "Bad request")
+		}
+		result := fmt.Sprintf("Available subs:%s", marshallSubs(subs, false))
 		tb.Bot.Send(m.Sender, result)
 	}
 }
@@ -73,7 +85,7 @@ func create(tb *TgBot) func(m *telebot.Message) {
 	}
 }
 
-// /add endpoint
+// /subscribe endpoint
 func subscribe(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		args, err := parseCommand(m.Text)
@@ -92,7 +104,7 @@ func subscribe(tb *TgBot) func(m *telebot.Message) {
 	}
 }
 
-// /add endpoint
+// /create_default endpoint
 func createDefault(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		args, err := parseCommand(m.Text)
@@ -111,8 +123,8 @@ func createDefault(tb *TgBot) func(m *telebot.Message) {
 	}
 }
 
-// /del endpoint
-func del(tb *TgBot) func(m *telebot.Message) {
+// /rm endpoint
+func deleleSub(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		args, err := parseCommand(m.Text)
 		if err != nil {
@@ -137,7 +149,7 @@ func del(tb *TgBot) func(m *telebot.Message) {
 	}
 }
 
-// /del endpoint
+// /rm_default endpoint
 func removeDefault(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		args, err := parseCommand(m.Text)
@@ -175,10 +187,14 @@ func parseCommand(cmd string) (string, error) {
 }
 
 // Format []logic.Publication to string
-func marshallSubs(subs []logic.Publication) string {
-	result := "Current subscriptions:"
+func marshallSubs(subs []logic.Publication, displayAlias bool) string {
+	result := ""
 	for id, sub := range subs {
-		result = fmt.Sprintf("%s\n%d: %s", result, id+1, marshallSub(sub))
+		if sub.Alias != "" && displayAlias {
+			result = fmt.Sprintf("%s\n%d: %s", result, id+1, sub.Alias)
+		} else {
+			result = fmt.Sprintf("%s\n%d: %s", result, id+1, marshallSub(sub))
+		}
 	}
 	return result
 }

@@ -21,7 +21,8 @@ type Publication struct {
 	Board     string // 2ch board name
 	Tags      string // Array of strings to search in thread title
 	IsDefault bool   // Publication owner
-	Type      string
+	Type      string // File formats
+	Alias     string // String alias
 	Users     []User `gorm:"many2many:user_subscribtion;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
