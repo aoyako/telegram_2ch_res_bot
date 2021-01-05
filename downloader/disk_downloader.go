@@ -2,9 +2,9 @@ package downloader
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -74,7 +74,7 @@ func (d *DiskDownloader) Free(url string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(atomic.AddUint64(&d.LoadedSpace, ^uint64(fi.Size()-1)))
+	log.Printf("Free space: %d\n", atomic.AddUint64(&d.LoadedSpace, ^uint64(fi.Size()-1)))
 	return d.delete(url)
 }
 

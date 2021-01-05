@@ -53,10 +53,7 @@ func (dw *APIWorkerDvach) InitiateSending() {
 
 	for i := range subs {
 		boardSubs[subs[i].Board] = append(boardSubs[subs[i].Board], subs[i])
-		// users[i], _ = dw.cnt.GetUsersByPublication(&subs[i])
 	}
-
-	// fmt.Println(subs)
 
 	for key := range boardSubs {
 		dw.processBoard(boardSubs[key], key)
@@ -86,8 +83,6 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string) {
 		users[subID] = userToAppend
 	}
 
-	fmt.Println(users)
-
 	usedThreads := make(map[int]([]UserRequest))
 
 	subKeywords := make([][]string, len(subs))
@@ -101,9 +96,9 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string) {
 		for subID := range subs {
 			for _, keyword := range subKeywords[subID] {
 				if strings.Contains(thread.Comment, keyword) {
-					for _, user := range users[subID] {
+					for userID := range users[subID] {
 						usedThreads[threadID] = append(usedThreads[threadID], UserRequest{
-							User:    &user,
+							User:    &users[subID][userID],
 							Request: subTypes[subID],
 						})
 					}
@@ -159,7 +154,6 @@ func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []Us
 	}
 
 	dw.cnt.SetLastTimestamp(currentTimestamp)
-	fmt.Println("Finished sending")
 }
 
 // Returns true if filename is user's selected type
