@@ -55,13 +55,24 @@ func (dw *APIWorkerDvach) InitiateSending() {
 		boardSubs[subs[i].Board] = append(boardSubs[subs[i].Board], subs[i])
 	}
 
+	boardWaiter := make(chan uint64, len(boardSubs))
+
 	for key := range boardSubs {
-		dw.processBoard(boardSubs[key], key)
+		go dw.processBoard(boardSubs[key], key, boardWaiter)
 	}
+
+	var lastTimestamp uint64
+	for i := 0; i < len(boardSubs); i++ {
+		tmp := <-boardWaiter
+		if tmp > lastTimestamp {
+			lastTimestamp = tmp
+		}
+	}
+	dw.cnt.SetLastTimestamp(lastTimestamp)
 }
 
 // Process request from board
-func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string) {
+func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, waiter chan uint64) {
 	resp, err := http.Get(fmt.Sprintf(dw.RequestURL.AllThreadsURL, board))
 	if err != nil {
 		log.Fatalf("Error creating request to 2ch.hk: %s", err.Error())
@@ -74,7 +85,7 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string) {
 	}
 	err = json.Unmarshal(body, &list)
 	if err != nil {
-		log.Fatalf("Error unmarshalling request body: %s", err.Error())
+		log.Fatalf("Error unmarshalling board request body: %s", err.Error())
 	}
 
 	users := make([][]logic.User, len(subs))
@@ -85,37 +96,45 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string) {
 
 	usedThreads := make(map[int]([]UserRequest))
 
-	subKeywords := make([][]string, len(subs))
+	subValidator := make([]func(string) bool, len(subs))
 	subTypes := make([]SourceType, len(subs))
 	for i, sub := range subs {
-		subKeywords[i] = parseKeywords(sub.Tags)
+		subValidator[i] = parseKeywords(sub.Tags)
 		subTypes[i] = parseTypes(sub.Type)
 	}
 
 	for threadID, thread := range list.Threads {
 		for subID := range subs {
-			for _, keyword := range subKeywords[subID] {
-				if strings.Contains(thread.Comment, keyword) {
-					for userID := range users[subID] {
-						usedThreads[threadID] = append(usedThreads[threadID], UserRequest{
-							User:    &users[subID][userID],
-							Request: subTypes[subID],
-						})
-					}
-					break
+			if subValidator[subID](thread.Comment) {
+				for userID := range users[subID] {
+					usedThreads[threadID] = append(usedThreads[threadID], UserRequest{
+						User:    &users[subID][userID],
+						Request: subTypes[subID],
+					})
 				}
 			}
 		}
 	}
 
+	threadWaiter := make(chan uint64, len(usedThreads))
 	for threadID, subsList := range usedThreads {
 		URLThreadID := list.Threads[threadID].ID
-		dw.processThread(board, URLThreadID, subsList)
+		go dw.processThread(board, URLThreadID, subsList, threadWaiter)
 	}
+
+	var lastTimestamp uint64
+	for i := 0; i < len(usedThreads); i++ {
+		tmp := <-threadWaiter
+		if tmp > lastTimestamp {
+			lastTimestamp = tmp
+		}
+	}
+
+	waiter <- lastTimestamp
 }
 
 // Process requests from thread
-func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []UserRequest) {
+func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []UserRequest, waiter chan uint64) {
 	resp, err := http.Get(fmt.Sprintf(dw.RequestURL.ThreadURL, board, URLThreadID))
 	if err != nil {
 		log.Fatalf("Error creating request to 2ch.hk: %s", err.Error())
@@ -128,7 +147,7 @@ func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []Us
 	}
 	err = json.Unmarshal(body, &threadData)
 	if err != nil {
-		log.Fatalf("Error unmarshalling request body: %s", err.Error())
+		log.Fatalf("Error unmarshalling thread request body: %s", err.Error())
 	}
 
 	lastTimestamp := dw.cnt.GetLastTimestamp()
@@ -139,12 +158,12 @@ func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []Us
 			files := post.Files
 			for _, file := range files {
 				fileReceivers := make([]*logic.User, 0)
-				for _, sub := range subsList {
-					if checkFileExtension(file.Name, sub.Request) {
-						fileReceivers = append(fileReceivers, sub.User)
+				for subID := range subsList {
+					if checkFileExtension(file.Name, subsList[subID].Request) {
+						fileReceivers = append(fileReceivers, subsList[subID].User)
 					}
 				}
-				go dw.Sender.Send(fileReceivers, fmt.Sprintf(dw.RequestURL.ResourceURL, file.Path), "")
+				go dw.Sender.Send(fileReceivers, fmt.Sprintf(dw.RequestURL.ResourceURL, file.Path), URLThreadID)
 			}
 
 			if post.Timestamp > currentTimestamp {
@@ -153,7 +172,7 @@ func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []Us
 		}
 	}
 
-	dw.cnt.SetLastTimestamp(currentTimestamp)
+	waiter <- currentTimestamp
 }
 
 // Returns true if filename is user's selected type
@@ -175,13 +194,50 @@ func checkFileExtension(filename string, req SourceType) bool {
 	return result
 }
 
-// Returns slice of keywords from s as ""keyword1","keyword2",.."
-func parseKeywords(s string) []string {
-	re := regexp.MustCompile("\",\"")
-	res := re.Split(s, -1)
-	res[0] = strings.TrimPrefix(res[0], "\"")
-	res[len(res)-1] = strings.TrimSuffix(res[len(res)-1], "\"")
-	return res
+// Retruns function to validate keywords
+func parseKeywords(s string) func(string) bool {
+	d := regexp.MustCompile("\"\\|")
+	c := regexp.MustCompile("\"&")
+	disjunction := d.Split(s, -1)
+	conjunction := make([][]string, len(disjunction))
+	negation := make([][]bool, len(disjunction))
+
+	for key := range disjunction {
+		conjunction[key] = c.Split(disjunction[key], -1)
+		for ckey := range conjunction[key] {
+			if strings.HasPrefix(conjunction[key][ckey], "!") {
+				negation[key] = append(negation[key], true)
+				conjunction[key][ckey] = strings.TrimPrefix(conjunction[key][ckey], "!\"")
+			} else {
+				negation[key] = append(negation[key], false)
+				conjunction[key][ckey] = strings.TrimPrefix(conjunction[key][ckey], "\"")
+			}
+		}
+	}
+
+	conjunction[len(conjunction)-1][len(conjunction[len(conjunction)-1])-1] =
+		strings.TrimSuffix(conjunction[len(conjunction)-1][len(conjunction[len(conjunction)-1])-1], "\"")
+
+	return func(input string) bool {
+		if !(strings.Contains(strings.ToLower(input), "что делать")) {
+			return false
+		}
+
+		for dis := range conjunction {
+			success := true
+			for con := range conjunction[dis] {
+				if !(strings.Contains(strings.ToLower(input),
+					strings.ToLower(conjunction[dis][con])) != negation[dis][con]) {
+					success = false
+					break
+				}
+			}
+			if success {
+				return true
+			}
+		}
+		return false
+	}
 }
 
 // Returns types from s as [.img.gif.webm]

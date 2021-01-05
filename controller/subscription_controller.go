@@ -159,6 +159,18 @@ func parseRequest(req string) (*logic.Publication, error) {
 		return nil, errors.New("Bad request")
 	}
 
+	tags := args[2]
+	res, err := regexp.MatchString(`^(!?".+"[|&])*!?".+"$`, tags)
+	if err != nil || !res {
+		return nil, errors.New("Bad request")
+	}
+
+	types := args[1]
+	res, err = regexp.MatchString(`^(\.[A-Za-z0-9]+)+$`, types)
+	if err != nil || !res {
+		return nil, errors.New("Bad request")
+	}
+
 	return &logic.Publication{
 		Board: args[0],
 		Tags:  args[2],
@@ -178,12 +190,22 @@ func parseRequestAlias(req string) (*logic.Publication, error) {
 		return nil, errors.New("Bad request")
 	}
 
-	args[2] = strings.TrimSuffix(args[2], "\""+words[len(words)-1])
+	tags := strings.TrimSuffix(args[2], " "+words[len(words)-1])
+	res, err := regexp.MatchString(`^(!?".+"[|&])*!?"[^&|]+"$`, tags)
+	if err != nil || !res {
+		return nil, errors.New("Bad request")
+	}
+
+	types := args[1]
+	res, err = regexp.MatchString(`^(\.[A-Za-z0-9]+)+$`, types)
+	if err != nil || !res {
+		return nil, errors.New("Bad request")
+	}
 
 	return &logic.Publication{
 		Board: args[0],
-		Tags:  strings.TrimSuffix(args[2], " "+words[len(words)-1]),
-		Type:  args[1],
+		Tags:  tags,
+		Type:  types,
 		Alias: words[len(words)-1],
 	}, nil
 }
