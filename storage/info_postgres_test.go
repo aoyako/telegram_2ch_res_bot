@@ -11,12 +11,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type DBMock struct {
+type StorageMock struct {
 	storage *InfoPostgres
 	mock    sqlmock.Sqlmock
 }
 
-func (mock *DBMock) BeforeEach(t *testing.T) {
+func (mock *StorageMock) BeforeEach(t *testing.T) {
 	var db *sql.DB
 	var err error
 
@@ -32,7 +32,7 @@ func (mock *DBMock) BeforeEach(t *testing.T) {
 	mock.storage = NewInfoPostgres(gdb)
 }
 
-func (mock *DBMock) AfterEach(t *testing.T) {
+func (mock *StorageMock) AfterEach(t *testing.T) {
 	err := mock.mock.ExpectationsWereMet()
 	assert.Nil(t, err)
 }
@@ -54,7 +54,7 @@ func TestNewInfoPostgres(t *testing.T) {
 
 func TestInfoPostgres_GetLastTimestamp(t *testing.T) {
 	assert := assert.New(t)
-	dbmock := DBMock{}
+	dbmock := StorageMock{}
 
 	type fields struct {
 		timestamp uint64
@@ -70,6 +70,7 @@ func TestInfoPostgres_GetLastTimestamp(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dbmock.BeforeEach(t)
+
 			infoStorage := dbmock.storage
 			rows := sqlmock.
 				NewRows([]string{"id", "last_post"}).
@@ -86,7 +87,7 @@ func TestInfoPostgres_GetLastTimestamp(t *testing.T) {
 }
 
 func TestInfoPostgres_SetLastTimestamp(t *testing.T) {
-	dbmock := DBMock{}
+	dbmock := StorageMock{}
 	type fields struct {
 		timestamp uint64
 	}
@@ -102,16 +103,20 @@ func TestInfoPostgres_SetLastTimestamp(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dbmock.BeforeEach(t)
+
 			infoStorage := dbmock.storage
 
-			const sqlInsert = `INSERT INTO "infos" ("last_post") 
-				VALUES ($1) RETURNING "id"`
+			const sqlUpdate = `UPDATE "infos" SET "last_post"=$1 WHERE "id" = $2`
+			const sqlSelect = `SELECT * FROM "infos" ORDER BY "infos"."id" LIMIT 1`
 
-			dbmock.mock.ExpectBegin()
-			dbmock.mock.ExpectQuery(regexp.QuoteMeta(sqlInsert)).
-				WithArgs(tt.fields.timestamp).
-				WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
-			dbmock.mock.ExpectCommit()
+			dbmock.mock.ExpectQuery(regexp.QuoteMeta(sqlSelect)).
+				WillReturnRows(sqlmock.
+					NewRows([]string{"id", "last_post"}).
+					AddRow(1, 1))
+
+			dbmock.mock.ExpectExec(regexp.QuoteMeta(`UPDATE "infos" SET "last_post"=$1 WHERE "id" = $2`)).
+				WithArgs(tt.fields.timestamp, 1).
+				WillReturnResult(sqlmock.NewResult(1, 1))
 
 			infoStorage.SetLastTimestamp(tt.fields.timestamp)
 

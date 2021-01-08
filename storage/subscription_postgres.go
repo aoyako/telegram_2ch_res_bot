@@ -53,7 +53,6 @@ func (subsStorage *SubscriptionPostgres) Update(user *logic.User, publication *l
 func (subsStorage *SubscriptionPostgres) GetSubsByUser(user *logic.User) ([]logic.Publication, error) {
 	var pubs []logic.Publication
 	result := subsStorage.db.Model(user).Association("Subs").Find(&pubs)
-	// result := subsStorage.db.Model(&logic.Publication{}).Where("user_id = ?", user.ID).Find(&pubs)
 	return pubs, result
 }
 
