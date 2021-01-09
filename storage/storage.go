@@ -14,7 +14,7 @@ type User interface {
 	GetUserByID(userID uint) (*logic.User, error)                       // Returns user by it's id
 	GetUsersByPublication(pub *logic.Publication) ([]logic.User, error) // Returns owner of publication
 	IsUserAdmin(user *logic.User) bool
-	IsChatAdmin(userID uint) bool
+	IsChatAdmin(userID uint64) bool
 }
 
 // Subscription interface defines methods for Publicaiton Storage

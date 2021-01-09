@@ -1,6 +1,8 @@
 package storage
 
 import (
+	"errors"
+
 	"github.com/aoyako/telegram_2ch_res_bot/logic"
 	"gorm.io/gorm"
 )
@@ -21,9 +23,9 @@ func NewUserPostgres(db *gorm.DB, cfg *InitDatabase) *UserPostgres {
 
 // Register adds user in databse
 func (userStorage *UserPostgres) Register(user *logic.User) error {
-	var tUser logic.User
-	exists := userStorage.db.Where("chat_id = ?", user.ChatID).First(&tUser)
-	if exists.Error != nil {
+	var count int64
+	userStorage.db.Model(&logic.User{}).Where("chat_id = ?", user.ChatID).Count(&count)
+	if count == 0 {
 		result := userStorage.db.Create(user)
 
 		if result.Error != nil {
@@ -54,6 +56,11 @@ func (userStorage *UserPostgres) Unregister(user *logic.User) error {
 // GetUserByChatID returns user by chat id
 func (userStorage *UserPostgres) GetUserByChatID(chatID uint64) (*logic.User, error) {
 	var user logic.User
+	var count int64
+	userStorage.db.Model(&logic.User{}).Where("chat_id = ?", chatID).Count(&count)
+	if count == 0 {
+		return nil, errors.New("No user found")
+	}
 	result := userStorage.db.Where("chat_id = ?", chatID).First(&user)
 	return &user, result.Error
 }
@@ -67,6 +74,11 @@ func (userStorage *UserPostgres) Update(user *logic.User) error {
 // GetUserByID returns user by it's id
 func (userStorage *UserPostgres) GetUserByID(userID uint) (*logic.User, error) {
 	var user logic.User
+	var count int64
+	userStorage.db.Model(&logic.User{}).Where("id = ?", userID).Count(&count)
+	if count == 0 {
+		return nil, errors.New("No user found")
+	}
 	result := userStorage.db.Where("id = ?", userID).First(&user)
 
 	return &user, result.Error
@@ -83,15 +95,17 @@ func (userStorage *UserPostgres) GetUsersByPublication(pub *logic.Publication) (
 // IsUserAdmin checks if user has administrator privileges
 func (userStorage *UserPostgres) IsUserAdmin(user *logic.User) bool {
 	var count int64
-	userStorage.db.Find(&logic.Admin{}).Where("user_id = ?", user.ID).Count(&count)
+	userStorage.db.Model(&logic.Admin{}).Where("user_id = ?", user.ID).Count(&count)
 	return count != 0
 }
 
 // IsChatAdmin checks if user has administrator privileges by chatID
-func (userStorage *UserPostgres) IsChatAdmin(chatID uint) bool {
-	var user logic.User
-	userStorage.db.Find(&logic.User{}).Where("chat_id = ?", chatID).First(&user)
-	return userStorage.IsUserAdmin(&user)
+func (userStorage *UserPostgres) IsChatAdmin(chatID uint64) bool {
+	user, err := userStorage.GetUserByChatID(chatID)
+	if err != nil {
+		return false
+	}
+	return userStorage.IsUserAdmin(user)
 }
 
 func contains(slice []uint64, val uint64) (int, bool) {
