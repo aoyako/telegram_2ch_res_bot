@@ -89,7 +89,7 @@ func TestUserPostgres_Register(t *testing.T) {
 				},
 				wantUser: true,
 			},
-			err: nil,
+			err: errors.New("User already exists"),
 		},
 		{
 			name: "Create admin",

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strconv"
 
 	"github.com/aoyako/telegram_2ch_res_bot/logic"
 
@@ -38,10 +37,7 @@ func subs(tb *TgBot) func(m *telebot.Message) {
 // /list endpoint
 func list(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
-		subs, err := tb.Controller.Subscription.GetAllDefaultSubs()
-		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad request")
-		}
+		subs := tb.Controller.Subscription.GetAllDefaultSubs()
 		result := fmt.Sprintf("Available subs:%s", marshallSubs(subs, true))
 		tb.Bot.Send(m.Sender, result)
 	}
@@ -50,10 +46,7 @@ func list(tb *TgBot) func(m *telebot.Message) {
 // /clist endpoint
 func cleverList(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
-		subs, err := tb.Controller.Subscription.GetAllDefaultSubs()
-		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad request")
-		}
+		subs := tb.Controller.Subscription.GetAllDefaultSubs()
 		result := fmt.Sprintf("Available subs:%s", marshallSubs(subs, false))
 		tb.Bot.Send(m.Sender, result)
 	}
@@ -132,14 +125,7 @@ func deleleSub(tb *TgBot) func(m *telebot.Message) {
 			return
 		}
 
-		num, err := strconv.Atoi(args)
-		num--
-		if err != nil || num < 0 {
-			tb.Bot.Send(m.Sender, "Bad index")
-			return
-		}
-
-		err = tb.Controller.Subscription.Remove(uint64(m.Chat.ID), uint(num))
+		err = tb.Controller.Subscription.Remove(uint64(m.Chat.ID), args)
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad index")
 			return
@@ -158,14 +144,7 @@ func removeDefault(tb *TgBot) func(m *telebot.Message) {
 			return
 		}
 
-		num, err := strconv.Atoi(args)
-		num--
-		if err != nil || num < 0 {
-			tb.Bot.Send(m.Sender, "Bad index")
-			return
-		}
-
-		err = tb.Controller.Subscription.RemoveDefault(uint64(m.Chat.ID), uint(num))
+		err = tb.Controller.Subscription.RemoveDefault(uint64(m.Chat.ID), args)
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad index")
 			return

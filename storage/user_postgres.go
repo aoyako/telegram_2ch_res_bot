@@ -42,9 +42,10 @@ func (userStorage *UserPostgres) Register(user *logic.User) error {
 				return result.Error
 			}
 		}
+		return nil
 	}
 
-	return nil
+	return errors.New("User already exists")
 }
 
 // Unregister removes user from database

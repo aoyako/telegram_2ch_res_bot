@@ -528,9 +528,8 @@ func TestSubscriptionPostgres_GetAllDefaultSubs(t *testing.T) {
 				WithArgs(true).
 				WillReturnRows(rows)
 
-			tstp, err := subsStorage.GetAllDefaultSubs()
+			tstp := subsStorage.GetAllDefaultSubs()
 			assert.Equal(tt.want, tstp)
-			assert.Equal(err, tt.err)
 
 			dbmock.AfterEach(t)
 		})

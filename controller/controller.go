@@ -16,12 +16,12 @@ type User interface {
 type Subscription interface {
 	AddNew(chatID uint64, request string) error // Adds new subscription to user with publication
 	Create(chatID uint64, request string) error
-	Remove(chatID uint64, number uint) error                    // Removes existing sybscription from user
+	Remove(chatID uint64, request string) error                 // Removes existing sybscription from user
 	Update(chatID uint64, request string) error                 // Updates selected subscription
 	GetSubsByChatID(chatID uint64) ([]logic.Publication, error) // Returns all user's subs
 	GetAllSubs() []logic.Publication                            // Returns all publications
-	GetAllDefaultSubs() ([]logic.Publication, error)
-	RemoveDefault(chatID uint64, number uint) error
+	GetAllDefaultSubs() []logic.Publication
+	RemoveDefault(chatID uint64, request string) error
 	Subscribe(chatID uint64, request string) error
 }
 

@@ -6,6 +6,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/floostack/transcoder v1.1.1
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/golang/mock v1.3.1
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.9.0 // indirect
 	github.com/magiconair/properties v1.8.4 // indirect

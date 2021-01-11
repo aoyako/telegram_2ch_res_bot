@@ -19,13 +19,14 @@ type User interface {
 
 // Subscription interface defines methods for Publicaiton Storage
 type Subscription interface {
-	Add(user *logic.User, publication *logic.Publication) error    // Adds new subscription to user with publication
-	AddDefault(publication *logic.Publication) error               // Adds new subscription to user with publication
-	Remove(publication *logic.Publication) error                   // Removes existing sybscription from user
-	Update(user *logic.User, publication *logic.Publication) error // Updates selected subscription
-	GetSubsByUser(user *logic.User) ([]logic.Publication, error)   // Returns list of user's subscriptions
-	GetAllSubs() []logic.Publication                               // Returns all publications
-	GetAllDefaultSubs() ([]logic.Publication, error)
+	Add(user *logic.User, publication *logic.Publication) error       // Adds new subscription to user with publication
+	AddDefault(publication *logic.Publication) error                  // Adds new subscription to user with publication
+	Remove(publication *logic.Publication) error                      // Removes existing sybscription
+	Disonnect(user *logic.User, publication *logic.Publication) error // Disonnect user from publication
+	Update(user *logic.User, publication *logic.Publication) error    // Updates selected subscription
+	GetSubsByUser(user *logic.User) ([]logic.Publication, error)      // Returns list of user's subscriptions
+	GetAllSubs() []logic.Publication                                  // Returns all publications
+	GetAllDefaultSubs() []logic.Publication
 	Connect(user *logic.User, publication *logic.Publication) error
 }
 

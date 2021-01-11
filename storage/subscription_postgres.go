@@ -43,6 +43,12 @@ func (subsStorage *SubscriptionPostgres) Connect(user *logic.User, publication *
 	return result
 }
 
+// Disonnect (unsubscribe) user from publication
+func (subsStorage *SubscriptionPostgres) Disonnect(user *logic.User, publication *logic.Publication) error {
+	result := subsStorage.db.Model(publication).Association("Users").Delete(user)
+	return result
+}
+
 // Update selected subscription
 func (subsStorage *SubscriptionPostgres) Update(user *logic.User, publication *logic.Publication) error {
 	result := subsStorage.db.Save(publication)
@@ -64,8 +70,8 @@ func (subsStorage *SubscriptionPostgres) GetAllSubs() []logic.Publication {
 }
 
 // GetAllDefaultSubs returns all default publications
-func (subsStorage *SubscriptionPostgres) GetAllDefaultSubs() ([]logic.Publication, error) {
+func (subsStorage *SubscriptionPostgres) GetAllDefaultSubs() []logic.Publication {
 	var pubs []logic.Publication
-	result := subsStorage.db.Model(&logic.Publication{}).Where("is_default = ?", true).Find(&pubs)
-	return pubs, result.Error
+	subsStorage.db.Model(&logic.Publication{}).Where("is_default = ?", true).Find(&pubs)
+	return pubs
 }

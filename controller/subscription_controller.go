@@ -27,24 +27,25 @@ func (scon *SubscriptionController) AddNew(chatID uint64, request string) error 
 	if err != nil {
 		return err
 	}
-	user.SubsCount++
-	err = scon.stg.User.Update(user)
-	if err != nil {
-		return err
-	}
 
 	publication, err := parseRequest(request)
 	if err != nil {
 		return err
 	}
 
-	result := scon.stg.Subscription.Add(user, publication)
-	return result
+	err = scon.stg.Subscription.Add(user, publication)
+	if err != nil {
+		return err
+	}
+
+	user.SubsCount++
+	err = scon.stg.User.Update(user)
+	return err
 }
 
 // Create default subscribtion
 func (scon *SubscriptionController) Create(chatID uint64, request string) error {
-	if !scon.stg.IsChatAdmin(uint(chatID)) {
+	if !scon.stg.IsChatAdmin(chatID) {
 		return errors.New("Access denied")
 	}
 	publication, err := parseRequestAlias(request)
@@ -62,28 +63,30 @@ func (scon *SubscriptionController) Subscribe(chatID uint64, request string) err
 	if err != nil {
 		return err
 	}
-	user.SubsCount++
-	err = scon.stg.User.Update(user)
-	if err != nil {
-		return err
-	}
 
 	pubID, err := strconv.Atoi(request)
 	if err != nil {
-		return err
+		return errors.New("Bad index")
 	}
 	pubID--
 
-	pubs, _ := scon.stg.GetAllDefaultSubs()
-	if pubID >= len(pubs) {
-		return errors.New("Bad Index")
+	pubs := scon.stg.GetAllDefaultSubs()
+	if pubID >= len(pubs) || pubID < 0 {
+		return errors.New("Bad index")
 	}
 
-	return scon.stg.Subscription.Connect(user, &pubs[pubID])
+	err = scon.stg.Subscription.Connect(user, &pubs[pubID])
+	if err != nil {
+		return err
+	}
+
+	user.SubsCount++
+	err = scon.stg.User.Update(user)
+	return err
 }
 
 // Remove existing sybscription from user
-func (scon *SubscriptionController) Remove(chatID uint64, number uint) error {
+func (scon *SubscriptionController) Remove(chatID uint64, request string) error {
 	user, err := scon.stg.User.GetUserByChatID(chatID)
 	if err != nil {
 		return fmt.Errorf("Cannot find user with chat_id=%d", chatID)
@@ -94,29 +97,61 @@ func (scon *SubscriptionController) Remove(chatID uint64, number uint) error {
 		return fmt.Errorf("Cannot get user's subs: %s", err.Error())
 	}
 
-	if len(subs) <= int(number) {
-		return fmt.Errorf("Number %d extends amount of subscribtions", number)
+	subID, err := strconv.Atoi(request)
+	if err != nil {
+		return errors.New("Bad index")
+	}
+	subID--
+
+	if subID >= len(subs) || subID < 0 {
+		return errors.New("Bad index")
 	}
 
-	return scon.stg.Subscription.Remove(&subs[number])
+	err = scon.stg.Subscription.Disonnect(user, &subs[subID])
+	if err != nil {
+		return err
+	}
+	if !subs[subID].IsDefault {
+		err = scon.stg.Subscription.Remove(&subs[subID])
+		if err != nil {
+			return err
+		}
+	}
+
+	user.SubsCount--
+	err = scon.stg.User.Update(user)
+	return err
 }
 
 // RemoveDefault deletes default publication
-func (scon *SubscriptionController) RemoveDefault(chatID uint64, number uint) error {
-	if !scon.stg.IsChatAdmin(uint(chatID)) {
+func (scon *SubscriptionController) RemoveDefault(chatID uint64, request string) error {
+	if !scon.stg.IsChatAdmin(chatID) {
 		return errors.New("Access denied")
 	}
 
-	subs, err := scon.stg.Subscription.GetAllDefaultSubs()
+	pubs := scon.stg.Subscription.GetAllDefaultSubs()
+
+	pubID, err := strconv.Atoi(request)
 	if err != nil {
-		return fmt.Errorf("Cannot get subs: %s", err.Error())
+		return errors.New("Bad index")
+	}
+	pubID--
+
+	if pubID >= len(pubs) || pubID < 0 {
+		return errors.New("Bad index")
 	}
 
-	if len(subs) <= int(number) {
-		return fmt.Errorf("Number %d extends amount of subscribtions", number)
+	users, err := scon.stg.GetUsersByPublication(&pubs[pubID])
+	if err != nil {
+		return errors.New("Bad request")
 	}
 
-	return scon.stg.Subscription.Remove(&subs[number])
+	for i := range users {
+		users[i].SubsCount--
+		scon.stg.User.Update(&users[i])
+	}
+
+	return scon.stg.Subscription.Remove(&pubs[pubID])
 }
 
 // Update selected subscription
@@ -146,12 +181,12 @@ func (scon *SubscriptionController) GetAllSubs() []logic.Publication {
 }
 
 // GetAllDefaultSubs returns all default publications
-func (scon *SubscriptionController) GetAllDefaultSubs() ([]logic.Publication, error) {
+func (scon *SubscriptionController) GetAllDefaultSubs() []logic.Publication {
 	return scon.stg.GetAllDefaultSubs()
 }
 
 // Parses request string
-// Request string format: "board_name {.img | .webm | .gif} ["keyword1",...]"
+// Request string format: "board_name {.img | .webm | .gif} "keyword1"[|,&]..."
 func parseRequest(req string) (*logic.Publication, error) {
 	separator := regexp.MustCompile(` `)
 	args := separator.Split(req, 3)

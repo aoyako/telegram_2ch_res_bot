@@ -219,10 +219,6 @@ func parseKeywords(s string) func(string) bool {
 		strings.TrimSuffix(conjunction[len(conjunction)-1][len(conjunction[len(conjunction)-1])-1], "\"")
 
 	return func(input string) bool {
-		if !(strings.Contains(strings.ToLower(input), "что делать")) {
-			return false
-		}
-
 		for dis := range conjunction {
 			success := true
 			for con := range conjunction[dis] {
@@ -261,7 +257,7 @@ func parseTypes(s string) SourceType {
 	return result
 }
 
-// Returns true and postion of string val in slice "slcie"
+// Returns if "val" is in sice and it's position
 func find(slice []string, val string) (int, bool) {
 	for i, item := range slice {
 		if item == val {
