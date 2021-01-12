@@ -2,8 +2,10 @@ package telegram
 
 import (
 	"log"
+	"reflect"
 	"strings"
 	"time"
+	"unsafe"
 
 	"github.com/aoyako/telegram_2ch_res_bot/controller"
 	"github.com/aoyako/telegram_2ch_res_bot/downloader"
@@ -13,19 +15,41 @@ import (
 	telebot "gopkg.in/tucnak/telebot.v2"
 )
 
+type MessageSender interface {
+	Send(r telebot.Recipient, value interface{}, args ...interface{}) (*telebot.Message, error)
+	Handle(interface{}, interface{})
+	Start()
+}
+
 // TgBot represents telegram bot view
 type TgBot struct {
-	Bot        *telebot.Bot
+	Bot        MessageSender
 	Controller *controller.Controller
 	Downloader *downloader.Downloader
 }
 
 // NewTelegramBot constructor of TelegramBot
 func NewTelegramBot(token string, cnt *controller.Controller, d *downloader.Downloader) *TgBot {
-	bot, err := telebot.NewBot(telebot.Settings{
+	settings := telebot.Settings{
 		Token:  token,
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
-	})
+	}
+
+	// If token is empty, do not send request
+	// Developers of telebot lib made "offline" mode unaccessible
+	// so reflect and unsafe is used to change that field
+	if token == "" {
+		rs := reflect.ValueOf(settings)
+		rs2 := reflect.New(rs.Type()).Elem()
+		rs2.Set(rs)
+		rsf := rs2.FieldByName("offline")
+		rsf = reflect.NewAt(rsf.Type(), unsafe.Pointer(rsf.UnsafeAddr())).Elem()
+		rsf.SetBool(true)
+
+		settings = rs2.Interface().(telebot.Settings)
+	}
+
+	bot, err := telebot.NewBot(settings)
 
 	if err != nil {
 		log.Fatal(err)
@@ -82,17 +106,7 @@ func (tb *TgBot) Send(users []*logic.User, path, caption string) {
 			}
 		}()
 
-		trans := new(transcoder.Transcoder)
-
-		vidPath := tb.Downloader.Get(path)
-		newVidPath := strings.TrimSuffix(vidPath, ".webm") + ".mp4"
-
-		err := trans.Initialize(vidPath, newVidPath)
-		if err != nil {
-			return
-		}
-		done := trans.Run(false)
-		err = <-done
+		newVidPath, err := convertWebmToMp4(tb.Downloader, path)
 		if err != nil {
 			log.Println(err)
 			return
@@ -106,4 +120,24 @@ func (tb *TgBot) Send(users []*logic.User, path, caption string) {
 			ID: int(user.ChatID),
 		}, file)
 	}
+}
+
+func convertWebmToMp4(d *downloader.Downloader, path string) (string, error) {
+	trans := new(transcoder.Transcoder)
+
+	vidPath := d.Get(path)
+	newVidPath := strings.TrimSuffix(vidPath, ".webm") + ".mp4"
+
+	err := trans.Initialize(vidPath, newVidPath)
+	if err != nil {
+		return "", err
+	}
+	done := trans.Run(false)
+	err = <-done
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+
+	return newVidPath, nil
 }

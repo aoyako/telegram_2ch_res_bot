@@ -46,7 +46,7 @@ func NewAPIWorkerDvach(cnt *controller.Controller, snd telegram.Sender, rU *Requ
 
 // InitiateSending loads data from server and sending it to users
 func (dw *APIWorkerDvach) InitiateSending() {
-	fmt.Println("started sending")
+	log.Println("started sending")
 
 	boardSubs := make(map[string][]logic.Publication)
 	subs := dw.cnt.GetAllSubs()
@@ -75,17 +75,17 @@ func (dw *APIWorkerDvach) InitiateSending() {
 func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, waiter chan uint64) {
 	resp, err := http.Get(fmt.Sprintf(dw.RequestURL.AllThreadsURL, board))
 	if err != nil {
-		log.Fatalf("Error creating request to 2ch.hk: %s", err.Error())
+		log.Printf("Error creating request to 2ch: %s", err.Error())
 	}
 
 	var list ListResponse
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal("Error reading request body")
+		log.Printf("Error reading request body")
 	}
 	err = json.Unmarshal(body, &list)
 	if err != nil {
-		log.Fatalf("Error unmarshalling board request body: %s", err.Error())
+		log.Printf("Error unmarshalling board request body: %s", err.Error())
 	}
 
 	users := make([][]logic.User, len(subs))
@@ -137,17 +137,17 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, w
 func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []UserRequest, waiter chan uint64) {
 	resp, err := http.Get(fmt.Sprintf(dw.RequestURL.ThreadURL, board, URLThreadID))
 	if err != nil {
-		log.Fatalf("Error creating request to 2ch.hk: %s", err.Error())
+		log.Printf("Error creating request to 2ch.hk: %s", err.Error())
 	}
 
 	var threadData ThreadData
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal("Error reading request body")
+		log.Printf("Error reading request body")
 	}
 	err = json.Unmarshal(body, &threadData)
 	if err != nil {
-		log.Fatalf("Error unmarshalling thread request body: %s", err.Error())
+		log.Printf("Error unmarshalling thread request body: %s", err.Error())
 	}
 
 	lastTimestamp := dw.cnt.GetLastTimestamp()

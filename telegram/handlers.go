@@ -29,7 +29,7 @@ func subs(tb *TgBot) func(m *telebot.Message) {
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad request")
 		}
-		result := fmt.Sprintf("Your subs:%s", marshallSubs(subs, false))
+		result := fmt.Sprintf("Your subs:%s", marshallSubs(subs, true))
 		tb.Bot.Send(m.Sender, result)
 	}
 }

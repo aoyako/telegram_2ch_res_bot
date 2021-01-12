@@ -1,6 +1,8 @@
 package mock_storage
 
-import gomock "github.com/golang/mock/gomock"
+import (
+	gomock "github.com/golang/mock/gomock"
+)
 
 // MockStorage mocks storage
 type MockStorage struct {
@@ -9,6 +11,7 @@ type MockStorage struct {
 	*MockInfo
 }
 
+// NewMockStorage constructor for mock storage
 func NewMockStorage(c *gomock.Controller) *MockStorage {
 	return &MockStorage{
 		NewMockUser(c),
