@@ -95,7 +95,11 @@ func (tb *TgBot) Send(users []*logic.User, path, caption string) {
 	}
 
 	if strings.HasSuffix(path, ".webm") {
-		tb.Downloader.Save(path)
+		err := tb.Downloader.Save(path)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 		defer func() {
 			err := tb.Downloader.Free(path)
 			if err != nil {

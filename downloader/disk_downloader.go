@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"io/ioutil"
 	"log"
@@ -36,17 +37,22 @@ func (d *DiskDownloader) Save(url string) error {
 
 	re := regexp.MustCompile("//")
 	res := re.Split(url, -1)
-	out, err := os.Create(path.Join(d.Path, normalizeURL(res[len(res)-1])))
-	if err != nil {
-		return err
-	}
-	defer out.Close()
 
 	bty, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
 	size := len(bty)
+
+	if uint64(size) >= d.MaxSpace {
+		return errors.New("File is too large")
+	}
+
+	out, err := os.Create(path.Join(d.Path, normalizeURL(res[len(res)-1])))
+	if err != nil {
+		return err
+	}
+	defer out.Close()
 
 	var success bool
 	for !success {
