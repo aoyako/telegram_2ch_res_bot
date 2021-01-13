@@ -15,6 +15,7 @@ import (
 	telebot "gopkg.in/tucnak/telebot.v2"
 )
 
+// MessageSender defines interface for bot-sender
 type MessageSender interface {
 	Send(r telebot.Recipient, value interface{}, args ...interface{}) (*telebot.Message, error)
 	Handle(interface{}, interface{})

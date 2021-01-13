@@ -1,11 +1,7 @@
 package dvach
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"regexp"
 	"strings"
 
@@ -16,9 +12,9 @@ import (
 
 // APIWorkerDvach represents struct to work with external api
 type APIWorkerDvach struct {
-	cnt        *controller.Controller
-	Sender     telegram.Sender
-	RequestURL *RequestURL
+	cnt       *controller.Controller
+	Sender    telegram.Sender
+	Requester Requester
 }
 
 // SourceType specify user's file extensions choice
@@ -36,11 +32,11 @@ type UserRequest struct {
 }
 
 // NewAPIWorkerDvach constructor for APIWorkerDvach
-func NewAPIWorkerDvach(cnt *controller.Controller, snd telegram.Sender, rU *RequestURL) *APIWorkerDvach {
+func NewAPIWorkerDvach(cnt *controller.Controller, snd telegram.Sender, req Requester) *APIWorkerDvach {
 	return &APIWorkerDvach{
-		cnt:        cnt,
-		Sender:     snd,
-		RequestURL: rU,
+		cnt:       cnt,
+		Sender:    snd,
+		Requester: req,
 	}
 }
 
@@ -73,20 +69,7 @@ func (dw *APIWorkerDvach) InitiateSending() {
 
 // Process request from board
 func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, waiter chan uint64) {
-	resp, err := http.Get(fmt.Sprintf(dw.RequestURL.AllThreadsURL, board))
-	if err != nil {
-		log.Printf("Error creating request to 2ch: %s", err.Error())
-	}
-
-	var list ListResponse
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Printf("Error reading request body")
-	}
-	err = json.Unmarshal(body, &list)
-	if err != nil {
-		log.Printf("Error unmarshalling board request body: %s", err.Error())
-	}
+	list := dw.Requester.GetAllThreads(board)
 
 	users := make([][]logic.User, len(subs))
 	for subID := range subs {
@@ -99,8 +82,8 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, w
 	subValidator := make([]func(string) bool, len(subs))
 	subTypes := make([]SourceType, len(subs))
 	for i, sub := range subs {
-		subValidator[i] = parseKeywords(sub.Tags)
-		subTypes[i] = parseTypes(sub.Type)
+		subValidator[i] = ParseKeywords(sub.Tags)
+		subTypes[i] = ParseTypes(sub.Type)
 	}
 
 	for threadID, thread := range list.Threads {
@@ -135,35 +118,20 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, w
 
 // Process requests from thread
 func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []UserRequest, waiter chan uint64) {
-	resp, err := http.Get(fmt.Sprintf(dw.RequestURL.ThreadURL, board, URLThreadID))
-	if err != nil {
-		log.Printf("Error creating request to 2ch.hk: %s", err.Error())
-	}
-
-	var threadData ThreadData
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Printf("Error reading request body")
-	}
-	err = json.Unmarshal(body, &threadData)
-	if err != nil {
-		log.Printf("Error unmarshalling thread request body: %s", err.Error())
-	}
-
+	threadData := dw.Requester.GetThread(board, URLThreadID)
 	lastTimestamp := dw.cnt.GetLastTimestamp()
 	currentTimestamp := lastTimestamp
-
 	for _, post := range threadData.ThreadPosts[0].Posts {
 		if post.Timestamp > lastTimestamp {
 			files := post.Files
 			for _, file := range files {
 				fileReceivers := make([]*logic.User, 0)
 				for subID := range subsList {
-					if checkFileExtension(file.Name, subsList[subID].Request) {
+					if CheckFileExtension(file.Name, subsList[subID].Request) {
 						fileReceivers = append(fileReceivers, subsList[subID].User)
 					}
 				}
-				go dw.Sender.Send(fileReceivers, fmt.Sprintf(dw.RequestURL.ResourceURL, file.Path), URLThreadID)
+				go dw.Sender.Send(fileReceivers, dw.Requester.GetResourceURL(file.Path), URLThreadID)
 			}
 
 			if post.Timestamp > currentTimestamp {
@@ -175,8 +143,8 @@ func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []Us
 	waiter <- currentTimestamp
 }
 
-// Returns true if filename is user's selected type
-func checkFileExtension(filename string, req SourceType) bool {
+// CheckFileExtension returns true if filename is user's selected type
+func CheckFileExtension(filename string, req SourceType) bool {
 	var result bool
 	if req.Image {
 		result = result || strings.HasSuffix(filename, ".png") || strings.HasSuffix(filename, ".jpg") ||
@@ -194,8 +162,8 @@ func checkFileExtension(filename string, req SourceType) bool {
 	return result
 }
 
-// Retruns function to validate keywords
-func parseKeywords(s string) func(string) bool {
+// ParseKeywords retruns function to validate keywords
+func ParseKeywords(s string) func(string) bool {
 	d := regexp.MustCompile("\"\\|")
 	c := regexp.MustCompile("\"&")
 	disjunction := d.Split(s, -1)
@@ -236,8 +204,8 @@ func parseKeywords(s string) func(string) bool {
 	}
 }
 
-// Returns types from s as [.img.gif.webm]
-func parseTypes(s string) SourceType {
+// ParseTypes returns types from s as [.img.gif.webm]
+func ParseTypes(s string) SourceType {
 	var result SourceType
 
 	re := regexp.MustCompile("\\.")
