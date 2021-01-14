@@ -195,7 +195,8 @@ func parseRequest(req string) (*logic.Publication, error) {
 	}
 
 	tags := args[2]
-	res, err := regexp.MatchString(`^(!?".+"[|&])*!?".+"$`, tags)
+	res, err := regexp.MatchString(`^(!?".+"[|&])*!?"[^&|]+"$`, tags)
+
 	if err != nil || !res {
 		return nil, errors.New("Bad request")
 	}

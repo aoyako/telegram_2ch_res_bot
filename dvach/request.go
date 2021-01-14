@@ -46,10 +46,12 @@ func (r *APIRequester) GetAllThreads(board string) ListResponse {
 	if err != nil {
 		log.Printf("Error reading request body")
 	}
+
 	err = json.Unmarshal(body, &list)
 	if err != nil {
 		log.Printf("Error unmarshalling board request body: %s", err.Error())
 	}
+
 	return list
 }
 

@@ -4,11 +4,14 @@ services:
     image: postgres
     environment:
       - 'POSTGRES_PASSWORD=${DB_PASSWORD}'
-    command: '-p 5436'
+    command: '-p ${DB_PORT}'
+    ports:
+        - "${DB_PORT}:${DB_PORT}"
     expose:
-        - "5436"
+        - "${DB_PORT}"
   bot:
     environment:
       - 'DB_PASSWORD=${DB_PASSWORD}'
+      - 'DB_PORT=${DB_PORT}'
       - 'BOT_TOKEN=${BOT_TOKEN}'
     build: .

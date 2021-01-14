@@ -21,7 +21,7 @@ func App() (*telegram.TgBot, *dvach.APIController, uint64) {
 
 	db, err := storage.NewPostgresDB(storage.Config{
 		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
+		Port:     os.Getenv("DB_PORT"),
 		Username: viper.GetString("db.username"),
 		DBName:   viper.GetString("db.dbname"),
 		SSLMode:  viper.GetString("db.sslmode"),

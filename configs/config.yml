@@ -1,13 +1,12 @@
 db:
   username: "postgres"
   host: "postgres"
-  port: "5436"
   dbname: "postgres"
   sslmode: "disable"
 
 dapi:
-  all: "https://2ch.hk/%s/threads.json"
-  thread: "https://2ch.hk/%s/res/%s.json"
+  all: "https://2ch.pm/%s/threads.json"
+  thread: "https://2ch.pm/%s/res/%s.json"
   resource: "https://2ch.hk%s"
 
 tg:
@@ -18,4 +17,4 @@ disk:
   size: 1073714824
 
 polling:
-  time: 3
+  time: 30

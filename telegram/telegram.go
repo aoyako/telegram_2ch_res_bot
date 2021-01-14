@@ -33,7 +33,7 @@ type TgBot struct {
 func NewTelegramBot(token string, cnt *controller.Controller, d *downloader.Downloader) *TgBot {
 	settings := telebot.Settings{
 		Token:  token,
-		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
+		Poller: &telebot.LongPoller{Timeout: 30 * time.Second},
 	}
 
 	// If token is empty, do not send request

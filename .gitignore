@@ -1,4 +1,4 @@
 .env
 .vscode/
-/src
+src/
 downloader/src/*

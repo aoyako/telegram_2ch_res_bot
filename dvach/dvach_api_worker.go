@@ -53,22 +53,23 @@ func (dw *APIWorkerDvach) InitiateSending() {
 
 	boardWaiter := make(chan uint64, len(boardSubs))
 
+	lastTimestamp := dw.cnt.GetLastTimestamp()
 	for key := range boardSubs {
-		go dw.processBoard(boardSubs[key], key, boardWaiter)
+		go dw.processBoard(boardSubs[key], key, lastTimestamp, boardWaiter)
 	}
 
-	var lastTimestamp uint64
+	var lastReceivedTimestamp uint64
 	for i := 0; i < len(boardSubs); i++ {
 		tmp := <-boardWaiter
-		if tmp > lastTimestamp {
-			lastTimestamp = tmp
+		if tmp > lastReceivedTimestamp {
+			lastReceivedTimestamp = tmp
 		}
 	}
-	dw.cnt.SetLastTimestamp(lastTimestamp)
+	dw.cnt.SetLastTimestamp(lastReceivedTimestamp)
 }
 
 // Process request from board
-func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, waiter chan uint64) {
+func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, lastTimestamp uint64, waiter chan uint64) {
 	list := dw.Requester.GetAllThreads(board)
 
 	users := make([][]logic.User, len(subs))
@@ -102,24 +103,23 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, w
 	threadWaiter := make(chan uint64, len(usedThreads))
 	for threadID, subsList := range usedThreads {
 		URLThreadID := list.Threads[threadID].ID
-		go dw.processThread(board, URLThreadID, subsList, threadWaiter)
+		go dw.processThread(board, URLThreadID, subsList, lastTimestamp, threadWaiter)
 	}
 
-	var lastTimestamp uint64
+	var lastReceivedTimestamp uint64
 	for i := 0; i < len(usedThreads); i++ {
 		tmp := <-threadWaiter
-		if tmp > lastTimestamp {
-			lastTimestamp = tmp
+		if tmp > lastReceivedTimestamp {
+			lastReceivedTimestamp = tmp
 		}
 	}
 
-	waiter <- lastTimestamp
+	waiter <- lastReceivedTimestamp
 }
 
 // Process requests from thread
-func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []UserRequest, waiter chan uint64) {
+func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []UserRequest, lastTimestamp uint64, waiter chan uint64) {
 	threadData := dw.Requester.GetThread(board, URLThreadID)
-	lastTimestamp := dw.cnt.GetLastTimestamp()
 	currentTimestamp := lastTimestamp
 	for _, post := range threadData.ThreadPosts[0].Posts {
 		if post.Timestamp > lastTimestamp {
