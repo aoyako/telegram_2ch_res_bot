@@ -1,0 +1,14 @@
+version: '2'
+services:
+  postgres:
+    image: postgres
+    environment:
+      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'
+    command: '-p 5436'
+    expose:
+        - "5436"
+  bot:
+    environment:
+      - 'DB_PASSWORD=${DB_PASSWORD}'
+      - 'BOT_TOKEN=${BOT_TOKEN}'
+    build: .

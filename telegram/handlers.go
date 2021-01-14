@@ -28,6 +28,7 @@ func subs(tb *TgBot) func(m *telebot.Message) {
 		subs, err := tb.Controller.Subscription.GetSubsByChatID(uint64(m.Chat.ID))
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad request")
+			return
 		}
 		result := fmt.Sprintf("Your subs:%s", marshallSubs(subs, true))
 		tb.Bot.Send(m.Sender, result)
