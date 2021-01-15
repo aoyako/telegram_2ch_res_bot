@@ -121,6 +121,12 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, l
 func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []UserRequest, lastTimestamp uint64, waiter chan uint64) {
 	threadData := dw.Requester.GetThread(board, URLThreadID)
 	currentTimestamp := lastTimestamp
+
+	if len(threadData.ThreadPosts) == 0 {
+		waiter <- 0
+		return
+	}
+
 	for _, post := range threadData.ThreadPosts[0].Posts {
 		if post.Timestamp > lastTimestamp {
 			files := post.Files

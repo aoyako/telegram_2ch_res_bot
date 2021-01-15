@@ -31,7 +31,7 @@ func (mock *UserMock) BeforeEach(t *testing.T) {
 	}), &gorm.Config{})
 	assert.Nil(t, err)
 
-	mock.storage = NewUserPostgres(gdb, &InitDatabase{Admin: []uint64{1}})
+	mock.storage = NewUserPostgres(gdb, &InitDatabase{Admin: []int64{1}})
 }
 
 func (mock *UserMock) AfterEach(t *testing.T) {
@@ -49,7 +49,7 @@ func TestNewUserPostgres(t *testing.T) {
 	}), &gorm.Config{})
 	assert.Nil(err)
 
-	config := InitDatabase{Admin: []uint64{1}}
+	config := InitDatabase{Admin: []int64{1}}
 
 	infop := NewUserPostgres(gdb, &config)
 
@@ -193,7 +193,7 @@ func TestUserPostgres_GetUserByChatID(t *testing.T) {
 	dbmock := UserMock{}
 
 	type args struct {
-		ChatID uint64
+		ChatID int64
 	}
 	tests := []struct {
 		name     string
@@ -309,7 +309,7 @@ func TestUserPostgres_GetUserByID(t *testing.T) {
 	dbmock := UserMock{}
 
 	type args struct {
-		ID uint64
+		ID int64
 	}
 	tests := []struct {
 		name     string
@@ -366,7 +366,7 @@ func TestUserPostgres_GetUserByID(t *testing.T) {
 					WillReturnRows(userRows)
 			}
 
-			tstp, err := userStorage.GetUserByID(uint(tt.args.ID))
+			tstp, err := userStorage.GetUserByID(tt.args.ID)
 
 			assert.Equal(tt.wantUser, tstp)
 			assert.Equal(tt.err, err)
@@ -517,7 +517,7 @@ func TestUserPostgres_IsChatAdmin(t *testing.T) {
 	dbmock := UserMock{}
 
 	type args struct {
-		ChatID uint64
+		ChatID int64
 	}
 	tests := []struct {
 		name string

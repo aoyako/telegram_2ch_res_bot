@@ -3,7 +3,7 @@ package logic
 // User stores info about user
 type User struct {
 	ID        int
-	ChatID    uint64        `gorm:"uniqueIndex"` // Telegram's chat id
+	ChatID    int64         `gorm:"uniqueIndex"` // Telegram's chat id
 	SubsCount uint          // Amount of current subscribtions
 	Subs      []Publication `gorm:"many2many:user_subscribtion;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // User's subscriptions
 	Admin     Admin         `gorm:"foreignKey:UserID"`

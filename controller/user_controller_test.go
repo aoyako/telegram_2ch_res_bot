@@ -18,7 +18,7 @@ func TestUserController_Register(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		chatID uint64
+		chatID int64
 		want   error
 	}{
 		{
@@ -59,7 +59,7 @@ func TestUserController_Unregister(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		chatID uint64
+		chatID int64
 		want   error
 	}{
 		{

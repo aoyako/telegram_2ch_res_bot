@@ -7,22 +7,22 @@ import (
 
 // User interface defines methods for User Controller
 type User interface {
-	Register(chatID uint64) error                                       // Performs user registration
-	Unregister(chatID uint64) error                                     // Performs user deregistration
+	Register(chatID int64) error                                        // Performs user registration
+	Unregister(chatID int64) error                                      // Performs user deregistration
 	GetUsersByPublication(pub *logic.Publication) ([]logic.User, error) // Returns owner of publication
 }
 
 // Subscription interface defines methods for Publication Controller
 type Subscription interface {
-	AddNew(chatID uint64, request string) error // Adds new subscription to user with publication
-	Create(chatID uint64, request string) error
-	Remove(chatID uint64, request string) error                 // Removes existing sybscription from user
-	Update(chatID uint64, request string) error                 // Updates selected subscription
-	GetSubsByChatID(chatID uint64) ([]logic.Publication, error) // Returns all user's subs
-	GetAllSubs() []logic.Publication                            // Returns all publications
+	AddNew(chatID int64, request string) error // Adds new subscription to user with publication
+	Create(chatID int64, request string) error
+	Remove(chatID int64, request string) error                 // Removes existing sybscription from user
+	Update(chatID int64, request string) error                 // Updates selected subscription
+	GetSubsByChatID(chatID int64) ([]logic.Publication, error) // Returns all user's subs
+	GetAllSubs() []logic.Publication                           // Returns all publications
 	GetAllDefaultSubs() []logic.Publication
-	RemoveDefault(chatID uint64, request string) error
-	Subscribe(chatID uint64, request string) error
+	RemoveDefault(chatID int64, request string) error
+	Subscribe(chatID int64, request string) error
 }
 
 // Info interface definces methods for Info Controller

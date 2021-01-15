@@ -39,17 +39,21 @@ func (r *APIRequester) GetAllThreads(board string) ListResponse {
 	resp, err := http.Get(fmt.Sprintf(r.Requests.AllThreadsURL, board))
 	if err != nil {
 		log.Printf("Error creating request to 2ch: %s", err.Error())
+		return ListResponse{}
 	}
+	defer resp.Body.Close()
 
 	var list ListResponse
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Error reading request body")
+		return ListResponse{}
 	}
 
 	err = json.Unmarshal(body, &list)
 	if err != nil {
 		log.Printf("Error unmarshalling board request body: %s", err.Error())
+		return ListResponse{}
 	}
 
 	return list
@@ -60,16 +64,20 @@ func (r *APIRequester) GetThread(board, threadID string) ThreadData {
 	resp, err := http.Get(fmt.Sprintf(r.Requests.ThreadURL, board, threadID))
 	if err != nil {
 		log.Printf("Error creating request to 2ch.hk: %s", err.Error())
+		return ThreadData{}
 	}
+	defer resp.Body.Close()
 
 	var threadData ThreadData
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Error reading request body")
+		return ThreadData{}
 	}
 	err = json.Unmarshal(body, &threadData)
 	if err != nil {
 		log.Printf("Error unmarshalling thread request body: %s", err.Error())
+		return ThreadData{}
 	}
 
 	return threadData

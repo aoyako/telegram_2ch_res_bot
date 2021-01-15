@@ -13,7 +13,7 @@ import (
 // /start endpoint
 func start(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
-		err := tb.Controller.Register(uint64(m.Chat.ID))
+		err := tb.Controller.Register(m.Chat.ID)
 		if err != nil {
 
 		}
@@ -25,7 +25,7 @@ func start(tb *TgBot) func(m *telebot.Message) {
 // /subs endpoint
 func subs(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
-		subs, err := tb.Controller.Subscription.GetSubsByChatID(uint64(m.Chat.ID))
+		subs, err := tb.Controller.Subscription.GetSubsByChatID(m.Chat.ID)
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad request")
 			return
@@ -69,7 +69,7 @@ func create(tb *TgBot) func(m *telebot.Message) {
 			return
 		}
 
-		err = tb.Controller.AddNew(uint64(m.Chat.ID), args)
+		err = tb.Controller.AddNew(m.Chat.ID, args)
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad request")
 			return
@@ -88,7 +88,7 @@ func subscribe(tb *TgBot) func(m *telebot.Message) {
 			return
 		}
 
-		err = tb.Controller.Subscription.Subscribe(uint64(m.Chat.ID), args)
+		err = tb.Controller.Subscription.Subscribe(m.Chat.ID, args)
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad request")
 			return
@@ -107,7 +107,7 @@ func createDefault(tb *TgBot) func(m *telebot.Message) {
 			return
 		}
 
-		err = tb.Controller.Create(uint64(m.Chat.ID), args)
+		err = tb.Controller.Create(m.Chat.ID, args)
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad request")
 			return
@@ -126,7 +126,7 @@ func deleleSub(tb *TgBot) func(m *telebot.Message) {
 			return
 		}
 
-		err = tb.Controller.Subscription.Remove(uint64(m.Chat.ID), args)
+		err = tb.Controller.Subscription.Remove(m.Chat.ID, args)
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad index")
 			return
@@ -145,7 +145,7 @@ func removeDefault(tb *TgBot) func(m *telebot.Message) {
 			return
 		}
 
-		err = tb.Controller.Subscription.RemoveDefault(uint64(m.Chat.ID), args)
+		err = tb.Controller.Subscription.RemoveDefault(m.Chat.ID, args)
 		if err != nil {
 			tb.Bot.Send(m.Sender, "Bad index")
 			return

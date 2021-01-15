@@ -17,7 +17,7 @@ func TestSubscriptionController_AddNew(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID              uint64
+		chatID              int64
 		request             string
 		errGetUser          error
 		errSaveUser         error
@@ -112,7 +112,7 @@ func TestSubscriptionController_Create(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID  uint64
+		chatID  int64
 		request string
 		isAdmin bool
 	}
@@ -180,7 +180,7 @@ func TestSubscriptionController_Subscribe(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID      uint64
+		chatID      int64
 		request     string
 		maxInd      uint
 		ind         uint
@@ -284,7 +284,7 @@ func TestSubscriptionController_Remove(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID      uint64
+		chatID      int64
 		request     string
 		maxInd      uint
 		ind         uint
@@ -393,7 +393,7 @@ func TestSubscriptionController_RemoveDefault(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID      uint64
+		chatID      int64
 		request     string
 		maxInd      uint
 		ind         uint
@@ -526,7 +526,7 @@ func TestSubscriptionController_GetSubsByChatID(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID uint64
+		chatID int64
 	}
 
 	tests := []struct {

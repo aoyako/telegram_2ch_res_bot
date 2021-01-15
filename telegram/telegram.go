@@ -121,8 +121,8 @@ func (tb *TgBot) Send(users []*logic.User, path, caption string) {
 	}
 
 	for _, user := range users {
-		tb.Bot.Send(&telebot.User{
-			ID: int(user.ChatID),
+		tb.Bot.Send(&telebot.Chat{
+			ID: int64(user.ChatID),
 		}, file)
 	}
 }

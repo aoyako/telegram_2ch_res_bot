@@ -55,7 +55,7 @@ func (userStorage *UserPostgres) Unregister(user *logic.User) error {
 }
 
 // GetUserByChatID returns user by chat id
-func (userStorage *UserPostgres) GetUserByChatID(chatID uint64) (*logic.User, error) {
+func (userStorage *UserPostgres) GetUserByChatID(chatID int64) (*logic.User, error) {
 	var user logic.User
 	var count int64
 	userStorage.db.Model(&logic.User{}).Where("chat_id = ?", chatID).Count(&count)
@@ -73,7 +73,7 @@ func (userStorage *UserPostgres) Update(user *logic.User) error {
 }
 
 // GetUserByID returns user by it's id
-func (userStorage *UserPostgres) GetUserByID(userID uint) (*logic.User, error) {
+func (userStorage *UserPostgres) GetUserByID(userID int64) (*logic.User, error) {
 	var user logic.User
 	var count int64
 	userStorage.db.Model(&logic.User{}).Where("id = ?", userID).Count(&count)
@@ -101,7 +101,7 @@ func (userStorage *UserPostgres) IsUserAdmin(user *logic.User) bool {
 }
 
 // IsChatAdmin checks if user has administrator privileges by chatID
-func (userStorage *UserPostgres) IsChatAdmin(chatID uint64) bool {
+func (userStorage *UserPostgres) IsChatAdmin(chatID int64) bool {
 	user, err := userStorage.GetUserByChatID(chatID)
 	if err != nil {
 		return false
@@ -109,7 +109,7 @@ func (userStorage *UserPostgres) IsChatAdmin(chatID uint64) bool {
 	return userStorage.IsUserAdmin(user)
 }
 
-func contains(slice []uint64, val uint64) (int, bool) {
+func contains(slice []int64, val int64) (int, bool) {
 	for i, item := range slice {
 		if item == val {
 			return i, true

@@ -21,7 +21,7 @@ func Test_start(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID  uint64
+		chatID  int64
 		willAdd bool
 	}
 
@@ -100,7 +100,7 @@ func Test_subs(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID uint64
+		chatID int64
 		subs   []logic.Publication
 	}
 
@@ -169,7 +169,7 @@ func Test_list(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID uint64
+		chatID int64
 		subs   []logic.Publication
 	}
 
@@ -238,7 +238,7 @@ func Test_cleverList(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID uint64
+		chatID int64
 		subs   []logic.Publication
 	}
 
@@ -307,7 +307,7 @@ func Test_help(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID uint64
+		chatID int64
 	}
 
 	tests := []struct {
@@ -368,7 +368,7 @@ func Test_create(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID        uint64
+		chatID        int64
 		request       string
 		subscribtion  logic.Publication
 		arg           string
@@ -464,7 +464,7 @@ func Test_subscribe(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID        uint64
+		chatID        int64
 		request       string
 		arg           string
 		failArgsCheck bool
@@ -547,7 +547,7 @@ func Test_createDefault(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID        uint64
+		chatID        int64
 		request       string
 		subscribtion  logic.Publication
 		arg           string
@@ -643,7 +643,7 @@ func Test_deleleSub(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID        uint64
+		chatID        int64
 		request       string
 		arg           string
 		failArgsCheck bool
@@ -726,7 +726,7 @@ func Test_removeDefault(t *testing.T) {
 	defer ctrl.Finish()
 
 	type args struct {
-		chatID        uint64
+		chatID        int64
 		request       string
 		arg           string
 		failArgsCheck bool

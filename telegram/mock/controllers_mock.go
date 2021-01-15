@@ -49,7 +49,7 @@ func (mr *MockUserMockRecorder) GetUsersByPublication(arg0 interface{}) *gomock.
 }
 
 // Register mocks base method
-func (m *MockUser) Register(arg0 uint64) error {
+func (m *MockUser) Register(arg0 int64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Register", arg0)
 	ret0, _ := ret[0].(error)
@@ -63,7 +63,7 @@ func (mr *MockUserMockRecorder) Register(arg0 interface{}) *gomock.Call {
 }
 
 // Unregister mocks base method
-func (m *MockUser) Unregister(arg0 uint64) error {
+func (m *MockUser) Unregister(arg0 int64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Unregister", arg0)
 	ret0, _ := ret[0].(error)
@@ -100,7 +100,7 @@ func (m *MockSubscription) EXPECT() *MockSubscriptionMockRecorder {
 }
 
 // AddNew mocks base method
-func (m *MockSubscription) AddNew(arg0 uint64, arg1 string) error {
+func (m *MockSubscription) AddNew(arg0 int64, arg1 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddNew", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -114,7 +114,7 @@ func (mr *MockSubscriptionMockRecorder) AddNew(arg0, arg1 interface{}) *gomock.C
 }
 
 // Create mocks base method
-func (m *MockSubscription) Create(arg0 uint64, arg1 string) error {
+func (m *MockSubscription) Create(arg0 int64, arg1 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -156,7 +156,7 @@ func (mr *MockSubscriptionMockRecorder) GetAllSubs() *gomock.Call {
 }
 
 // GetSubsByChatID mocks base method
-func (m *MockSubscription) GetSubsByChatID(arg0 uint64) ([]logic.Publication, error) {
+func (m *MockSubscription) GetSubsByChatID(arg0 int64) ([]logic.Publication, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSubsByChatID", arg0)
 	ret0, _ := ret[0].([]logic.Publication)
@@ -171,7 +171,7 @@ func (mr *MockSubscriptionMockRecorder) GetSubsByChatID(arg0 interface{}) *gomoc
 }
 
 // Remove mocks base method
-func (m *MockSubscription) Remove(arg0 uint64, arg1 string) error {
+func (m *MockSubscription) Remove(arg0 int64, arg1 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Remove", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -185,7 +185,7 @@ func (mr *MockSubscriptionMockRecorder) Remove(arg0, arg1 interface{}) *gomock.C
 }
 
 // RemoveDefault mocks base method
-func (m *MockSubscription) RemoveDefault(arg0 uint64, arg1 string) error {
+func (m *MockSubscription) RemoveDefault(arg0 int64, arg1 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemoveDefault", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -199,7 +199,7 @@ func (mr *MockSubscriptionMockRecorder) RemoveDefault(arg0, arg1 interface{}) *g
 }
 
 // Subscribe mocks base method
-func (m *MockSubscription) Subscribe(arg0 uint64, arg1 string) error {
+func (m *MockSubscription) Subscribe(arg0 int64, arg1 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Subscribe", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -213,7 +213,7 @@ func (mr *MockSubscriptionMockRecorder) Subscribe(arg0, arg1 interface{}) *gomoc
 }
 
 // Update mocks base method
-func (m *MockSubscription) Update(arg0 uint64, arg1 string) error {
+func (m *MockSubscription) Update(arg0 int64, arg1 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", arg0, arg1)
 	ret0, _ := ret[0].(error)

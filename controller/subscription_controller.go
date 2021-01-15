@@ -22,7 +22,7 @@ func NewSubscriptionController(stg *storage.Storage) *SubscriptionController {
 }
 
 // AddNew creates a subscription to user with publication
-func (scon *SubscriptionController) AddNew(chatID uint64, request string) error {
+func (scon *SubscriptionController) AddNew(chatID int64, request string) error {
 	user, err := scon.stg.GetUserByChatID(chatID)
 	if err != nil {
 		return err
@@ -44,7 +44,7 @@ func (scon *SubscriptionController) AddNew(chatID uint64, request string) error 
 }
 
 // Create default subscribtion
-func (scon *SubscriptionController) Create(chatID uint64, request string) error {
+func (scon *SubscriptionController) Create(chatID int64, request string) error {
 	if !scon.stg.IsChatAdmin(chatID) {
 		return errors.New("Access denied")
 	}
@@ -58,7 +58,7 @@ func (scon *SubscriptionController) Create(chatID uint64, request string) error 
 }
 
 // Subscribe user to publication
-func (scon *SubscriptionController) Subscribe(chatID uint64, request string) error {
+func (scon *SubscriptionController) Subscribe(chatID int64, request string) error {
 	user, err := scon.stg.GetUserByChatID(chatID)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func (scon *SubscriptionController) Subscribe(chatID uint64, request string) err
 }
 
 // Remove existing sybscription from user
-func (scon *SubscriptionController) Remove(chatID uint64, request string) error {
+func (scon *SubscriptionController) Remove(chatID int64, request string) error {
 	user, err := scon.stg.User.GetUserByChatID(chatID)
 	if err != nil {
 		return fmt.Errorf("Cannot find user with chat_id=%d", chatID)
@@ -124,7 +124,7 @@ func (scon *SubscriptionController) Remove(chatID uint64, request string) error 
 }
 
 // RemoveDefault deletes default publication
-func (scon *SubscriptionController) RemoveDefault(chatID uint64, request string) error {
+func (scon *SubscriptionController) RemoveDefault(chatID int64, request string) error {
 	if !scon.stg.IsChatAdmin(chatID) {
 		return errors.New("Access denied")
 	}
@@ -156,12 +156,12 @@ func (scon *SubscriptionController) RemoveDefault(chatID uint64, request string)
 
 // Update selected subscription
 // May be used in future updates
-func (scon *SubscriptionController) Update(chatID uint64, request string) error {
+func (scon *SubscriptionController) Update(chatID int64, request string) error {
 	return nil
 }
 
 // GetSubsByChatID returns all user's subs
-func (scon *SubscriptionController) GetSubsByChatID(chatID uint64) ([]logic.Publication, error) {
+func (scon *SubscriptionController) GetSubsByChatID(chatID int64) ([]logic.Publication, error) {
 	user, err := scon.stg.GetUserByChatID(chatID)
 	if err != nil {
 		return nil, fmt.Errorf("Cannot find user with chat_id=%d", chatID)

@@ -12,5 +12,5 @@ type Config struct {
 
 // InitDatabase configuration struct to database data
 type InitDatabase struct {
-	Admin []uint64
+	Admin []int64
 }

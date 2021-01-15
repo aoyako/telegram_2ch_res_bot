@@ -19,6 +19,7 @@ WORKDIR /dist
 
 RUN cp /build/main .
 RUN cp -r /build/configs .
+RUN cp -r /build/src .
 
 
 FROM scratch

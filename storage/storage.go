@@ -9,12 +9,12 @@ import (
 type User interface {
 	Register(user *logic.User) error                                    // Adds user in databse
 	Unregister(user *logic.User) error                                  // Removes user from database
-	GetUserByChatID(chatID uint64) (*logic.User, error)                 // Returns user by chat id
+	GetUserByChatID(chatID int64) (*logic.User, error)                  // Returns user by chat id
 	Update(user *logic.User) error                                      // Updates user
-	GetUserByID(userID uint) (*logic.User, error)                       // Returns user by it's id
+	GetUserByID(userID int64) (*logic.User, error)                      // Returns user by it's id
 	GetUsersByPublication(pub *logic.Publication) ([]logic.User, error) // Returns owner of publication
 	IsUserAdmin(user *logic.User) bool
-	IsChatAdmin(userID uint64) bool
+	IsChatAdmin(userID int64) bool
 }
 
 // Subscription interface defines methods for Publicaiton Storage

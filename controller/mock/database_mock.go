@@ -34,7 +34,7 @@ func (m *MockUser) EXPECT() *MockUserMockRecorder {
 }
 
 // GetUserByChatID mocks base method
-func (m *MockUser) GetUserByChatID(arg0 uint64) (*logic.User, error) {
+func (m *MockUser) GetUserByChatID(arg0 int64) (*logic.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByChatID", arg0)
 	ret0, _ := ret[0].(*logic.User)
@@ -49,7 +49,7 @@ func (mr *MockUserMockRecorder) GetUserByChatID(arg0 interface{}) *gomock.Call {
 }
 
 // GetUserByID mocks base method
-func (m *MockUser) GetUserByID(arg0 uint) (*logic.User, error) {
+func (m *MockUser) GetUserByID(arg0 int64) (*logic.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByID", arg0)
 	ret0, _ := ret[0].(*logic.User)
@@ -79,7 +79,7 @@ func (mr *MockUserMockRecorder) GetUsersByPublication(arg0 interface{}) *gomock.
 }
 
 // IsChatAdmin mocks base method
-func (m *MockUser) IsChatAdmin(arg0 uint64) bool {
+func (m *MockUser) IsChatAdmin(arg0 int64) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IsChatAdmin", arg0)
 	ret0, _ := ret[0].(bool)

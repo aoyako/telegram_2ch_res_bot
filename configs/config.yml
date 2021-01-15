@@ -17,4 +17,4 @@ disk:
   size: 1073714824
 
 polling:
-  time: 30
+  time: 20

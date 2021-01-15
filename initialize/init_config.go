@@ -33,7 +33,7 @@ func App() (*telegram.TgBot, *dvach.APIController, uint64) {
 	}
 
 	admins := storage.InitDatabase{
-		Admin: stringToUint64Slice(viper.GetStringSlice("tg.admin_id")),
+		Admin: stringToInt64Slice(viper.GetStringSlice("tg.admin_id")),
 	}
 
 	requestURL := &dvach.RequestURL{
@@ -64,10 +64,10 @@ func initConfig() error {
 	return viper.ReadInConfig()
 }
 
-func stringToUint64Slice(data []string) []uint64 {
-	result := make([]uint64, len(data))
+func stringToInt64Slice(data []string) []int64 {
+	result := make([]int64, len(data))
 	for key := range data {
-		tmp, err := strconv.ParseUint(data[key], 10, 64)
+		tmp, err := strconv.ParseInt(data[key], 10, 64)
 		if err != nil {
 			panic(err)
 		}
