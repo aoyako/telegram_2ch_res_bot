@@ -15,6 +15,8 @@ import (
 	telebot "gopkg.in/tucnak/telebot.v2"
 )
 
+var fileHandlersQueue = make(chan bool, 100)
+
 // MessageSender defines interface for bot-sender
 type MessageSender interface {
 	Send(r telebot.Recipient, value interface{}, args ...interface{}) (*telebot.Message, error)
@@ -121,9 +123,25 @@ func (tb *TgBot) Send(users []*logic.User, path, caption string) {
 	}
 
 	for _, user := range users {
-		tb.Bot.Send(&telebot.Chat{
-			ID: int64(user.ChatID),
-		}, file)
+		for {
+			fileHandlersQueue <- true
+
+			_, err := tb.Bot.Send(&telebot.Chat{
+				ID: int64(user.ChatID),
+			}, file)
+
+			<-fileHandlersQueue
+
+			if err != nil {
+				if e, ok := err.(telebot.FloodError); ok {
+					time.Sleep(time.Duration(e.RetryAfter) * time.Second)
+					continue
+				} else {
+					log.Println(err)
+				}
+			}
+			break
+		}
 	}
 }
 

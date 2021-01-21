@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/aoyako/telegram_2ch_res_bot/logic"
 	"gorm.io/driver/postgres"
@@ -32,6 +33,13 @@ func MigrateDatabase(db *gorm.DB) {
 	var count int64
 	db.Find(&logic.Info{}).Count(&count)
 	if count == 0 {
-		db.Create(&logic.Info{})
+		db.Create(&logic.Info{
+			LastPost: uint64(time.Now().Unix()),
+		})
+	} else {
+		var info logic.Info
+		db.Find(&logic.Info{}).First(&info)
+		info.LastPost = uint64(time.Now().Unix())
+		db.Save(info)
 	}
 }

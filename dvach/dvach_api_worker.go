@@ -103,7 +103,7 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, l
 	threadWaiter := make(chan uint64, len(usedThreads))
 	for threadID, subsList := range usedThreads {
 		URLThreadID := list.Threads[threadID].ID
-		go dw.processThread(board, URLThreadID, subsList, lastTimestamp, threadWaiter)
+		dw.processThread(board, URLThreadID, subsList, lastTimestamp, threadWaiter)
 	}
 
 	var lastReceivedTimestamp uint64
@@ -137,7 +137,7 @@ func (dw *APIWorkerDvach) processThread(board, URLThreadID string, subsList []Us
 						fileReceivers = append(fileReceivers, subsList[subID].User)
 					}
 				}
-				go dw.Sender.Send(fileReceivers, dw.Requester.GetResourceURL(file.Path), URLThreadID)
+				dw.Sender.Send(fileReceivers, dw.Requester.GetResourceURL(file.Path), URLThreadID)
 			}
 
 			if post.Timestamp > currentTimestamp {
