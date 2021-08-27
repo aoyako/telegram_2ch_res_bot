@@ -11,15 +11,14 @@ WORKDIR /build
 
 COPY . .
 RUN go mod download
+RUN go mod verify
 
 RUN go build -o main cmd/main.go
-
 
 WORKDIR /dist
 
 RUN cp /build/main .
 RUN cp -r /build/configs .
-RUN cp -r /build/src .
 
 
 FROM scratch

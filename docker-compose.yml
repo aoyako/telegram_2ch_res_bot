@@ -15,3 +15,5 @@ services:
       - 'DB_PORT=${DB_PORT}'
       - 'BOT_TOKEN=${BOT_TOKEN}'
     build: .
+    depends_on:
+      - postgres

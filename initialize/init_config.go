@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/aoyako/telegram_2ch_res_bot/controller"
 	"github.com/aoyako/telegram_2ch_res_bot/downloader"
@@ -19,6 +20,7 @@ func App() (*telegram.TgBot, *dvach.APIController, uint64) {
 		log.Fatalf("Error initializing config file: %s", err.Error())
 	}
 
+	time.Sleep(3 * time.Second)
 	db, err := storage.NewPostgresDB(storage.Config{
 		Host:     viper.GetString("db.host"),
 		Port:     os.Getenv("DB_PORT"),
