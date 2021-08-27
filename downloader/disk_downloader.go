@@ -23,6 +23,7 @@ type DiskDownloader struct {
 
 // NewDisckDownloader constructor for DiskDownloader
 func NewDisckDownloader(path string, space uint64) *DiskDownloader {
+	os.MkdirAll(path, os.ModePerm)
 	return &DiskDownloader{Path: path, MaxSpace: space}
 }
 
