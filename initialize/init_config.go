@@ -12,6 +12,7 @@ import (
 	"github.com/aoyako/telegram_2ch_res_bot/storage"
 	"github.com/aoyako/telegram_2ch_res_bot/telegram"
 	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
 // App initializes application
@@ -20,15 +21,26 @@ func App() (*telegram.TgBot, *dvach.APIController, uint64) {
 		log.Fatalf("Error initializing config file: %s", err.Error())
 	}
 
-	time.Sleep(3 * time.Second)
-	db, err := storage.NewPostgresDB(storage.Config{
-		Host:     viper.GetString("db.host"),
-		Port:     os.Getenv("DB_PORT"),
-		Username: viper.GetString("db.username"),
-		DBName:   viper.GetString("db.dbname"),
-		SSLMode:  viper.GetString("db.sslmode"),
-		Password: os.Getenv("DB_PASSWORD"),
-	})
+	var db *gorm.DB
+	var err error
+	for {
+		db, err = storage.NewPostgresDB(storage.Config{
+			Host:     viper.GetString("db.host"),
+			Port:     os.Getenv("DB_PORT"),
+			Username: viper.GetString("db.username"),
+			DBName:   viper.GetString("db.dbname"),
+			SSLMode:  viper.GetString("db.sslmode"),
+			Password: os.Getenv("DB_PASSWORD"),
+		})
+
+		if err != nil {
+			log.Println(err)
+			time.Sleep(3 * time.Second)
+			continue
+		}
+
+		break
+	}
 
 	if err != nil {
 		log.Fatalf("Error creating database: %s", err.Error())

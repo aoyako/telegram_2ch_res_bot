@@ -3,17 +3,27 @@ package storage
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/aoyako/telegram_2ch_res_bot/logic"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // NewPostgresDB constructor of gorm.DB databse with postgresql database
 func NewPostgresDB(cfg Config) (*gorm.DB, error) {
 	connStr := formatPostgresConfig(cfg)
-	return gorm.Open(postgres.Open(connStr), &gorm.Config{})
+	lg := logger.New(
+		log.New(os.Stdout, "\n", log.LstdFlags),
+		logger.Config{
+			LogLevel: logger.Silent,
+		},
+	)
+	return gorm.Open(postgres.Open(connStr), &gorm.Config{
+		Logger: lg,
+	})
 }
 
 // Formats config struct to meet gorm's expectations
