@@ -97,17 +97,17 @@ func (tb *TgBot) Send(users []*logic.User, path, caption string) {
 	}
 
 	if strings.HasSuffix(path, ".webm") {
-		err := tb.Downloader.Save(path)
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		// err := tb.Downloader.Save(path)
+		// if err != nil {
+		// log.Println(err)
+		// return
+		// }
 		defer func() {
-			err := tb.Downloader.Free(path)
-			if err != nil {
-				log.Println(err)
-			}
-			err = tb.Downloader.Free(strings.TrimSuffix(path, ".webm") + ".mp4")
+			// err := tb.Downloader.Free(path)
+			// if err != nil {
+			// log.Println(err)
+			// }
+			err := tb.Downloader.Free(strings.TrimSuffix(path, ".webm") + ".mp4")
 			if err != nil {
 				log.Println(err)
 			}
@@ -151,7 +151,7 @@ func convertWebmToMp4(d *downloader.Downloader, path string) (string, error) {
 	vidPath := d.Get(path)
 	newVidPath := strings.TrimSuffix(vidPath, ".webm") + ".mp4"
 
-	err := trans.Initialize(vidPath, newVidPath)
+	err := trans.Initialize(path, newVidPath)
 	if err != nil {
 		return "", err
 	}

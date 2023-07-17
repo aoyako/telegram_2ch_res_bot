@@ -19,7 +19,7 @@ type APIController struct {
 type Thread struct {
 	Comment   string  `json:"comment"`
 	Lasthit   int64   `json:"lasthit"`
-	ID        string  `json:"num"`
+	ID        uint64  `json:"num"`
 	PostCount int     `json:"posts_count"`
 	Score     float64 `json:"score"`
 	Subject   string  `json:"subject"`

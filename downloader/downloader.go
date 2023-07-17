@@ -2,7 +2,6 @@ package downloader
 
 // Loader interface can load data from links
 type Loader interface {
-	Save(url string) error
 	Free(url string) error
 	Get(url string) string
 }

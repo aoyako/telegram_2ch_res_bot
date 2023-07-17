@@ -3,6 +3,7 @@ package dvach
 import (
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/aoyako/telegram_2ch_res_bot/controller"
@@ -103,7 +104,7 @@ func (dw *APIWorkerDvach) processBoard(subs []logic.Publication, board string, l
 	threadWaiter := make(chan uint64, len(usedThreads))
 	for threadID, subsList := range usedThreads {
 		URLThreadID := list.Threads[threadID].ID
-		dw.processThread(board, URLThreadID, subsList, lastTimestamp, threadWaiter)
+		dw.processThread(board, strconv.FormatUint(URLThreadID, 10), subsList, lastTimestamp, threadWaiter)
 	}
 
 	var lastReceivedTimestamp uint64

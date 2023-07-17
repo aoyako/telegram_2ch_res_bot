@@ -21,7 +21,11 @@ RUN cp /build/main .
 RUN cp -r /build/configs .
 
 
-FROM scratch
+FROM alpine
+
+RUN apk update
+RUN apk upgrade
+RUN apk add --no-cache ffmpeg
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 

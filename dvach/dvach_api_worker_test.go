@@ -57,7 +57,7 @@ func TestAPIWorkerDvach_InitiateSending(t *testing.T) {
 						Threads: []dvach.Thread{
 							dvach.Thread{
 								Comment: "Default comment abc",
-								ID:      "thread_id",
+								ID:      123,
 							},
 						},
 					},
