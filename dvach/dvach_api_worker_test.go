@@ -93,7 +93,7 @@ func TestAPIWorkerDvach_InitiateSending(t *testing.T) {
 				filesToSend:    []string{"filepath.png"},
 				urlFilesToSend: []string{"/res/filepath.png"},
 				threadsToProcess: [][]string{
-					[]string{"thread_id"},
+					[]string{"123"},
 				},
 			},
 		},
