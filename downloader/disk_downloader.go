@@ -12,14 +12,13 @@ import (
 // DiskDownloader can download files to disk
 type DiskDownloader struct {
 	Path        string // Directory to save resources
-	MaxSpace    uint64 // Max size of resource files is Bytes
 	LoadedSpace uint64 // Current space load status
 }
 
 // NewDisckDownloader constructor for DiskDownloader
-func NewDisckDownloader(path string, space uint64) *DiskDownloader {
+func NewDisckDownloader(path string) *DiskDownloader {
 	os.MkdirAll(path, os.ModePerm)
-	return &DiskDownloader{Path: path, MaxSpace: space}
+	return &DiskDownloader{Path: path}
 }
 
 // Free data from disk of given file

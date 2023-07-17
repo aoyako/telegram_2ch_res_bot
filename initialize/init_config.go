@@ -60,8 +60,7 @@ func App() (*telegram.TgBot, *dvach.APIController, uint64) {
 	controller := controller.NewController(Storage)
 
 	bot := telegram.NewTelegramBot(os.Getenv("BOT_TOKEN"), controller, downloader.NewDownloader(
-		viper.GetString("disk.path"),
-		viper.GetUint64("disk.size")))
+		viper.GetString("disk.path")))
 	requester := dvach.NewRequester(requestURL)
 	apicnt := dvach.NewAPIController(controller, bot, requester)
 

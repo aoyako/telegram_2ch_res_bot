@@ -38,11 +38,11 @@ func TestAPIWorkerDvach_InitiateSending(t *testing.T) {
 			name: "Initiate test",
 			args: args{
 				publications: []logic.Publication{
-					logic.Publication{ID: 1, Board: "a", Type: ".img", Tags: "\"abc\""},
+					{ID: 1, Board: "a", Type: ".img", Tags: "\"abc\""},
 				},
 				users: [][]logic.User{
-					[]logic.User{
-						logic.User{ID: 1, ChatID: 123},
+					{
+						{ID: 1, ChatID: 123},
 					},
 				},
 				requestURL: dvach.RequestURL{
@@ -52,10 +52,10 @@ func TestAPIWorkerDvach_InitiateSending(t *testing.T) {
 				},
 				boards: []string{"a"},
 				expectAllThreads: []dvach.ListResponse{
-					dvach.ListResponse{
+					{
 						Board: "a",
 						Threads: []dvach.Thread{
-							dvach.Thread{
+							{
 								Comment: "Default comment abc",
 								ID:      123,
 							},
