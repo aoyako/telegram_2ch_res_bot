@@ -63,19 +63,19 @@ func TestAPIWorkerDvach_InitiateSending(t *testing.T) {
 					},
 				},
 				expectThreadData: [][]dvach.ThreadData{
-					[]dvach.ThreadData{
-						dvach.ThreadData{
+					{
+						{
 							ThreadPosts: []dvach.ThreadPost{
-								dvach.ThreadPost{
+								{
 									Posts: []dvach.Post{
-										dvach.Post{
+										{
 											Comment:   "Default post",
 											Timestamp: 123,
 										},
-										dvach.Post{
+										{
 											Comment: "Post with files",
 											Files: []dvach.File{
-												dvach.File{
+												{
 													Name: "default_file.png",
 													Path: "filepath.png",
 													Size: 100,
@@ -93,7 +93,7 @@ func TestAPIWorkerDvach_InitiateSending(t *testing.T) {
 				filesToSend:    []string{"filepath.png"},
 				urlFilesToSend: []string{"/res/filepath.png"},
 				threadsToProcess: [][]string{
-					[]string{"123"},
+					{"123"},
 				},
 			},
 		},

@@ -542,10 +542,10 @@ func TestSubscriptionController_GetSubsByChatID(t *testing.T) {
 			},
 			wantErr: nil,
 			wantSubs: []logic.Publication{
-				logic.Publication{
+				{
 					ID: 1,
 				},
-				logic.Publication{
+				{
 					ID: 2,
 				},
 			},
@@ -591,10 +591,10 @@ func TestSubscriptionController_GetAllSubs(t *testing.T) {
 		{
 			name: "Get all subs",
 			wantSubs: []logic.Publication{
-				logic.Publication{
+				{
 					ID: 1,
 				},
-				logic.Publication{
+				{
 					ID: 2,
 				},
 			},
@@ -632,11 +632,11 @@ func TestSubscriptionController_GetAllDefaultSubs(t *testing.T) {
 		{
 			name: "Get all default subs",
 			wantSubs: []logic.Publication{
-				logic.Publication{
+				{
 					ID:        1,
 					IsDefault: true,
 				},
-				logic.Publication{
+				{
 					ID:        2,
 					IsDefault: true,
 				},

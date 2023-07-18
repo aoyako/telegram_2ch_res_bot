@@ -114,8 +114,8 @@ func Test_subs(t *testing.T) {
 			args: args{
 				chatID: 1,
 				subs: []logic.Publication{
-					logic.Publication{ID: 1, Board: "a", Tags: "\"b\"", Type: ".g"},
-					logic.Publication{ID: 2, Alias: "Default"},
+					{ID: 1, Board: "a", Tags: "\"b\"", Type: ".g"},
+					{ID: 2, Alias: "Default"},
 				},
 			},
 			want: "Your subs:\n1: /a .g \"b\"\n2: Default",
@@ -183,8 +183,8 @@ func Test_list(t *testing.T) {
 			args: args{
 				chatID: 1,
 				subs: []logic.Publication{
-					logic.Publication{ID: 1, Board: "a", Tags: "\"b\"", Type: ".g"},
-					logic.Publication{ID: 2, Alias: "Default"},
+					{ID: 1, Board: "a", Tags: "\"b\"", Type: ".g"},
+					{ID: 2, Alias: "Default"},
 				},
 			},
 			want: "Available subs:\n1: /a .g \"b\"\n2: Default",
@@ -252,8 +252,8 @@ func Test_cleverList(t *testing.T) {
 			args: args{
 				chatID: 1,
 				subs: []logic.Publication{
-					logic.Publication{ID: 1, Board: "a", Tags: "\"b\"", Type: ".g"},
-					logic.Publication{ID: 2, Alias: "Default"},
+					{ID: 1, Board: "a", Tags: "\"b\"", Type: ".g"},
+					{ID: 2, Alias: "Default"},
 				},
 			},
 			want: "Available subs:\n1: /a .g \"b\"\n2: /  ",
@@ -859,8 +859,8 @@ func Test_marshallSubs(t *testing.T) {
 			args: args{
 				displayAlias: true,
 				subs: []logic.Publication{
-					logic.Publication{ID: 1, Board: "a", Tags: "\"b\"", Type: ".g"},
-					logic.Publication{ID: 2, Alias: "Default"},
+					{ID: 1, Board: "a", Tags: "\"b\"", Type: ".g"},
+					{ID: 2, Alias: "Default"},
 				},
 			},
 			want: "\n1: /a .g \"b\"\n2: Default",
@@ -870,8 +870,8 @@ func Test_marshallSubs(t *testing.T) {
 			args: args{
 				displayAlias: false,
 				subs: []logic.Publication{
-					logic.Publication{ID: 1, Board: "a", Tags: "\"b\"", Type: ".g"},
-					logic.Publication{ID: 2, Alias: "Default"},
+					{ID: 1, Board: "a", Tags: "\"b\"", Type: ".g"},
+					{ID: 2, Alias: "Default"},
 				},
 			},
 			want: "\n1: /a .g \"b\"\n2: /  ",

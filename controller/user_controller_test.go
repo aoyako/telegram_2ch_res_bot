@@ -104,9 +104,9 @@ func TestUserController_GetUsersByPublication(t *testing.T) {
 				ID: 7,
 			},
 			want: []logic.User{
-				logic.User{ID: 1},
-				logic.User{ID: 2},
-				logic.User{ID: 3},
+				{ID: 1},
+				{ID: 2},
+				{ID: 3},
 			},
 		},
 		{

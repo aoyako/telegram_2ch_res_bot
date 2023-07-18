@@ -383,10 +383,10 @@ func TestSubscriptionPostgres_GetSubsByUser(t *testing.T) {
 				},
 			},
 			want: []logic.Publication{
-				logic.Publication{
+				{
 					ID: 2,
 				},
-				logic.Publication{
+				{
 					ID: 3,
 				},
 			},
@@ -443,10 +443,10 @@ func TestSubscriptionPostgres_GetAllSubs(t *testing.T) {
 		{
 			name: "Get all subs",
 			want: []logic.Publication{
-				logic.Publication{
+				{
 					ID: 2,
 				},
-				logic.Publication{
+				{
 					ID: 3,
 				},
 			},
@@ -493,11 +493,11 @@ func TestSubscriptionPostgres_GetAllDefaultSubs(t *testing.T) {
 		{
 			name: "Get all subs",
 			want: []logic.Publication{
-				logic.Publication{
+				{
 					ID:        2,
 					IsDefault: true,
 				},
-				logic.Publication{
+				{
 					ID:        3,
 					IsDefault: true,
 				},
