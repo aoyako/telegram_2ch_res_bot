@@ -397,11 +397,11 @@ func TestUserPostgres_GetUsersByPublication(t *testing.T) {
 				},
 			},
 			wantUsers: []logic.User{
-				logic.User{
+				{
 					ID:     8,
 					ChatID: 7,
 				},
-				logic.User{
+				{
 					ID:     7,
 					ChatID: 8,
 				},

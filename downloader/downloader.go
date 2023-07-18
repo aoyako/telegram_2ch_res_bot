@@ -2,7 +2,6 @@ package downloader
 
 // Loader interface can load data from links
 type Loader interface {
-	Save(url string) error
 	Free(url string) error
 	Get(url string) string
 }
@@ -13,6 +12,6 @@ type Downloader struct {
 }
 
 // NewDownloader constructor for Downloader
-func NewDownloader(path string, space uint64) *Downloader {
-	return &Downloader{Loader: NewDisckDownloader(path, space)}
+func NewDownloader(path string) *Downloader {
+	return &Downloader{Loader: NewDisckDownloader(path)}
 }

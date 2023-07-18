@@ -38,11 +38,11 @@ func TestAPIWorkerDvach_InitiateSending(t *testing.T) {
 			name: "Initiate test",
 			args: args{
 				publications: []logic.Publication{
-					logic.Publication{ID: 1, Board: "a", Type: ".img", Tags: "\"abc\""},
+					{ID: 1, Board: "a", Type: ".img", Tags: "\"abc\""},
 				},
 				users: [][]logic.User{
-					[]logic.User{
-						logic.User{ID: 1, ChatID: 123},
+					{
+						{ID: 1, ChatID: 123},
 					},
 				},
 				requestURL: dvach.RequestURL{
@@ -52,30 +52,30 @@ func TestAPIWorkerDvach_InitiateSending(t *testing.T) {
 				},
 				boards: []string{"a"},
 				expectAllThreads: []dvach.ListResponse{
-					dvach.ListResponse{
+					{
 						Board: "a",
 						Threads: []dvach.Thread{
-							dvach.Thread{
+							{
 								Comment: "Default comment abc",
-								ID:      "thread_id",
+								ID:      123,
 							},
 						},
 					},
 				},
 				expectThreadData: [][]dvach.ThreadData{
-					[]dvach.ThreadData{
-						dvach.ThreadData{
+					{
+						{
 							ThreadPosts: []dvach.ThreadPost{
-								dvach.ThreadPost{
+								{
 									Posts: []dvach.Post{
-										dvach.Post{
+										{
 											Comment:   "Default post",
 											Timestamp: 123,
 										},
-										dvach.Post{
+										{
 											Comment: "Post with files",
 											Files: []dvach.File{
-												dvach.File{
+												{
 													Name: "default_file.png",
 													Path: "filepath.png",
 													Size: 100,
@@ -93,7 +93,7 @@ func TestAPIWorkerDvach_InitiateSending(t *testing.T) {
 				filesToSend:    []string{"filepath.png"},
 				urlFilesToSend: []string{"/res/filepath.png"},
 				threadsToProcess: [][]string{
-					[]string{"thread_id"},
+					{"123"},
 				},
 			},
 		},

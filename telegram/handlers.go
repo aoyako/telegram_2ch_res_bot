@@ -3,6 +3,7 @@ package telegram
 import (
 	"errors"
 	"fmt"
+	"log"
 	"regexp"
 
 	"github.com/aoyako/telegram_2ch_res_bot/logic"
@@ -15,7 +16,7 @@ func start(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		err := tb.Controller.Register(m.Chat.ID)
 		if err != nil {
-
+			log.Println(err)
 		}
 
 		help(tb)(m)
@@ -27,6 +28,7 @@ func subs(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		subs, err := tb.Controller.Subscription.GetSubsByChatID(m.Chat.ID)
 		if err != nil {
+			log.Println(err)
 			tb.Bot.Send(m.Sender, "Bad request")
 			return
 		}
@@ -160,7 +162,7 @@ func parseCommand(cmd string) (string, error) {
 	separator := regexp.MustCompile(` `)
 	args := separator.Split(cmd, 2)
 	if len(args) != 2 {
-		return "", errors.New("Bad request")
+		return "", errors.New("bad request")
 	}
 
 	return args[1], nil
