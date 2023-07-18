@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -25,16 +26,19 @@ func NewSubscriptionController(stg *storage.Storage) *SubscriptionController {
 func (scon *SubscriptionController) AddNew(chatID int64, request string) error {
 	user, err := scon.stg.GetUserByChatID(chatID)
 	if err != nil {
+		log.Println("SubscriptionController.AddNew-GetUserByChatID", err)
 		return err
 	}
 
 	publication, err := parseRequest(request)
 	if err != nil {
+		log.Println("SubscriptionController.AddNew-parseRequest", err)
 		return err
 	}
 
 	err = scon.stg.Subscription.Add(user, publication)
 	if err != nil {
+		log.Println("SubscriptionController.AddNew-Add", err)
 		return err
 	}
 
@@ -46,10 +50,11 @@ func (scon *SubscriptionController) AddNew(chatID int64, request string) error {
 // Create default subscribtion
 func (scon *SubscriptionController) Create(chatID int64, request string) error {
 	if !scon.stg.IsChatAdmin(chatID) {
-		return errors.New("Access denied")
+		return errors.New("access denied")
 	}
 	publication, err := parseRequestAlias(request)
 	if err != nil {
+		log.Println("SubscriptionController.Create-parseRequestAlias", err)
 		return err
 	}
 	publication.IsDefault = true
@@ -61,22 +66,26 @@ func (scon *SubscriptionController) Create(chatID int64, request string) error {
 func (scon *SubscriptionController) Subscribe(chatID int64, request string) error {
 	user, err := scon.stg.GetUserByChatID(chatID)
 	if err != nil {
+		log.Println("SubscriptionController.Subscribe-GetUserByChatID", err)
 		return err
 	}
 
 	pubID, err := strconv.Atoi(request)
 	if err != nil {
-		return errors.New("Bad index")
+		log.Println("SubscriptionController.Subscribe-Atoi", err)
+		return errors.New("bad index")
 	}
 	pubID--
 
 	pubs := scon.stg.GetAllDefaultSubs()
 	if pubID >= len(pubs) || pubID < 0 {
-		return errors.New("Bad index")
+		log.Println("SubscriptionController.Subscribe-GetAllDefaultSubs", err)
+		return errors.New("bad index")
 	}
 
 	err = scon.stg.Subscription.Connect(user, &pubs[pubID])
 	if err != nil {
+		log.Println("SubscriptionController.Subscribe-Connect", err)
 		return err
 	}
 
@@ -89,31 +98,36 @@ func (scon *SubscriptionController) Subscribe(chatID int64, request string) erro
 func (scon *SubscriptionController) Remove(chatID int64, request string) error {
 	user, err := scon.stg.User.GetUserByChatID(chatID)
 	if err != nil {
-		return fmt.Errorf("Cannot find user with chat_id=%d", chatID)
+		log.Println("SubscriptionController.Remove-GetUserByChatID", err)
+		return fmt.Errorf("cannot find user with chat_id=%d", chatID)
 	}
 
 	subs, err := scon.stg.Subscription.GetSubsByUser(user)
 	if err != nil {
-		return fmt.Errorf("Cannot get user's subs: %s", err.Error())
+		log.Println("SubscriptionController.Remove-GetSubsByUser", err)
+		return fmt.Errorf("cannot get user's subs: %s", err.Error())
 	}
 
 	subID, err := strconv.Atoi(request)
 	if err != nil {
-		return errors.New("Bad index")
+		log.Println("SubscriptionController.Remove-Atoi", err)
+		return errors.New("bad index")
 	}
 	subID--
 
 	if subID >= len(subs) || subID < 0 {
-		return errors.New("Bad index")
+		return errors.New("bad index")
 	}
 
 	err = scon.stg.Subscription.Disonnect(user, &subs[subID])
 	if err != nil {
+		log.Println("SubscriptionController.Remove-Disonnect", err)
 		return err
 	}
 	if !subs[subID].IsDefault {
 		err = scon.stg.Subscription.Remove(&subs[subID])
 		if err != nil {
+			log.Println("SubscriptionController.Remove-Remove", err)
 			return err
 		}
 	}
@@ -126,24 +140,24 @@ func (scon *SubscriptionController) Remove(chatID int64, request string) error {
 // RemoveDefault deletes default publication
 func (scon *SubscriptionController) RemoveDefault(chatID int64, request string) error {
 	if !scon.stg.IsChatAdmin(chatID) {
-		return errors.New("Access denied")
+		return errors.New("access denied")
 	}
 
 	pubs := scon.stg.Subscription.GetAllDefaultSubs()
 
 	pubID, err := strconv.Atoi(request)
 	if err != nil {
-		return errors.New("Bad index")
+		return errors.New("bad index")
 	}
 	pubID--
 
 	if pubID >= len(pubs) || pubID < 0 {
-		return errors.New("Bad index")
+		return errors.New("bad index")
 	}
 
 	users, err := scon.stg.GetUsersByPublication(&pubs[pubID])
 	if err != nil {
-		return errors.New("Bad request")
+		return errors.New("bad request")
 	}
 
 	for i := range users {
@@ -164,12 +178,14 @@ func (scon *SubscriptionController) Update(chatID int64, request string) error {
 func (scon *SubscriptionController) GetSubsByChatID(chatID int64) ([]logic.Publication, error) {
 	user, err := scon.stg.GetUserByChatID(chatID)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot find user with chat_id=%d", chatID)
+		log.Println("SubscriptionController.GetSubsByChatID-GetUserByChatID", err)
+		return nil, fmt.Errorf("cannot find user with chat_id=%d", chatID)
 	}
 
 	subs, err := scon.stg.GetSubsByUser(user)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot get user's subs: %s", err.Error())
+		log.Println("SubscriptionController.GetSubsByChatID-GetSubsByUser", err)
+		return nil, fmt.Errorf("cannot get user's subs: %s", err.Error())
 	}
 
 	return subs, nil
@@ -191,20 +207,23 @@ func parseRequest(req string) (*logic.Publication, error) {
 	separator := regexp.MustCompile(` `)
 	args := separator.Split(req, 3)
 	if len(args) != 3 {
-		return nil, errors.New("Bad request")
+		log.Println("parseRequest - error", args)
+		return nil, errors.New("bad request")
 	}
 
 	tags := args[2]
 	res, err := regexp.MatchString(`^(!?".+"[|&])*!?"[^&|]+"$`, tags)
 
 	if err != nil || !res {
-		return nil, errors.New("Bad request")
+		log.Println("parseRequest - error", args)
+		return nil, errors.New("bad request")
 	}
 
 	types := args[1]
 	res, err = regexp.MatchString(`^(\.[A-Za-z0-9]+)+$`, types)
 	if err != nil || !res {
-		return nil, errors.New("Bad request")
+		log.Println("parseRequest - error", args)
+		return nil, errors.New("bad request")
 	}
 
 	return &logic.Publication{
@@ -223,19 +242,22 @@ func parseRequestAlias(req string) (*logic.Publication, error) {
 	words := parser.Split(args[len(args)-1], -1)
 
 	if len(args) != 3 {
-		return nil, errors.New("Bad request")
+		log.Println("parseRequestAlias - error", args)
+		return nil, errors.New("bad request")
 	}
 
 	tags := strings.TrimSuffix(args[2], " "+words[len(words)-1])
 	res, err := regexp.MatchString(`^(!?".+"[|&])*!?"[^&|]+"$`, tags)
 	if err != nil || !res {
-		return nil, errors.New("Bad request")
+		log.Println("parseRequestAlias - error", args)
+		return nil, errors.New("bad request")
 	}
 
 	types := args[1]
 	res, err = regexp.MatchString(`^(\.[A-Za-z0-9]+)+$`, types)
 	if err != nil || !res {
-		return nil, errors.New("Bad request")
+		log.Println("parseRequestAlias - error", args)
+		return nil, errors.New("bad request")
 	}
 
 	return &logic.Publication{

@@ -138,7 +138,7 @@ func TestSubscriptionController_Create(t *testing.T) {
 				request: "a .a \"a\"",
 				isAdmin: false,
 			},
-			want: errors.New("Access denied"),
+			want: errors.New("access denied"),
 		},
 	}
 
@@ -212,7 +212,7 @@ func TestSubscriptionController_Subscribe(t *testing.T) {
 				ind:         100,
 				passConvert: true,
 			},
-			want: errors.New("Bad index"),
+			want: errors.New("bad index"),
 		},
 		{
 			name: "Request index out of range - negative",
@@ -222,7 +222,7 @@ func TestSubscriptionController_Subscribe(t *testing.T) {
 				maxInd:      20,
 				passConvert: true,
 			},
-			want: errors.New("Bad index"),
+			want: errors.New("bad index"),
 		},
 		{
 			name: "Bad request index",
@@ -231,7 +231,7 @@ func TestSubscriptionController_Subscribe(t *testing.T) {
 				request: "temp",
 				maxInd:  20,
 			},
-			want: errors.New("Bad index"),
+			want: errors.New("bad index"),
 		},
 	}
 
@@ -317,7 +317,7 @@ func TestSubscriptionController_Remove(t *testing.T) {
 				ind:         100,
 				passConvert: true,
 			},
-			want: errors.New("Bad index"),
+			want: errors.New("bad index"),
 		},
 		{
 			name: "Request index out of range - negative",
@@ -327,7 +327,7 @@ func TestSubscriptionController_Remove(t *testing.T) {
 				maxInd:      20,
 				passConvert: true,
 			},
-			want: errors.New("Bad index"),
+			want: errors.New("bad index"),
 		},
 		{
 			name: "Bad request index",
@@ -336,7 +336,7 @@ func TestSubscriptionController_Remove(t *testing.T) {
 				request: "temp",
 				maxInd:  20,
 			},
-			want: errors.New("Bad index"),
+			want: errors.New("bad index"),
 		},
 	}
 
@@ -430,7 +430,7 @@ func TestSubscriptionController_RemoveDefault(t *testing.T) {
 				passConvert: false,
 				isAdmin:     true,
 			},
-			want: errors.New("Bad index"),
+			want: errors.New("bad index"),
 		},
 		{
 			name: "Request index out of range - negative",
@@ -441,7 +441,7 @@ func TestSubscriptionController_RemoveDefault(t *testing.T) {
 				passConvert: false,
 				isAdmin:     true,
 			},
-			want: errors.New("Bad index"),
+			want: errors.New("bad index"),
 		},
 		{
 			name: "Bad request index",
@@ -451,7 +451,7 @@ func TestSubscriptionController_RemoveDefault(t *testing.T) {
 				maxInd:  20,
 				isAdmin: true,
 			},
-			want: errors.New("Bad index"),
+			want: errors.New("bad index"),
 		},
 		{
 			name: "Not an admin",
@@ -462,7 +462,7 @@ func TestSubscriptionController_RemoveDefault(t *testing.T) {
 				isAdmin:     false,
 				passConvert: true,
 			},
-			want: errors.New("Access denied"),
+			want: errors.New("access denied"),
 		},
 	}
 
@@ -705,27 +705,27 @@ func Test_parseRequest(t *testing.T) {
 		{
 			name:      "No tags",
 			request:   "a .b",
-			wantError: errors.New("Bad request"),
+			wantError: errors.New("bad request"),
 		},
 		{
 			name:      "No formats",
 			request:   "a \"C\"",
-			wantError: errors.New("Bad request"),
+			wantError: errors.New("bad request"),
 		},
 		{
 			name:      "No board",
 			request:   ".b \"C\"",
-			wantError: errors.New("Bad request"),
+			wantError: errors.New("bad request"),
 		},
 		{
 			name:      "Empty tags",
 			request:   "a .b \"\"",
-			wantError: errors.New("Bad request"),
+			wantError: errors.New("bad request"),
 		},
 		{
 			name:      "Wrong type",
 			request:   "a b.c \"D\"|\"e\"",
-			wantError: errors.New("Bad request"),
+			wantError: errors.New("bad request"),
 		},
 	}
 
@@ -781,27 +781,27 @@ func Test_parseRequestAlias(t *testing.T) {
 		{
 			name:      "No tags",
 			request:   "a .b Default",
-			wantError: errors.New("Bad request"),
+			wantError: errors.New("bad request"),
 		},
 		{
 			name:      "No formats",
 			request:   "a \"C\" Default",
-			wantError: errors.New("Bad request"),
+			wantError: errors.New("bad request"),
 		},
 		{
 			name:      "No board",
 			request:   ".b \"C\" Default",
-			wantError: errors.New("Bad request"),
+			wantError: errors.New("bad request"),
 		},
 		{
 			name:      "Empty tags",
 			request:   "a .b \"\" Default",
-			wantError: errors.New("Bad request"),
+			wantError: errors.New("bad request"),
 		},
 		{
 			name:      "Wrong type",
 			request:   "a b.c \"D\"|\"e\" Default",
-			wantError: errors.New("Bad request"),
+			wantError: errors.New("bad request"),
 		},
 	}
 

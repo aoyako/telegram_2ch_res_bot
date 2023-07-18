@@ -30,6 +30,7 @@ func (d *DiskDownloader) Free(url string) error {
 	res := re.Split(url, -1)
 	fi, err := os.Stat(path.Join(d.Path, normalizeURL(res[len(res)-1])))
 	if err != nil {
+		log.Println("DiskDownloader.Free-Stat", err)
 		return err
 	}
 	log.Printf("Free space: %d\n", atomic.AddUint64(&d.LoadedSpace, ^uint64(fi.Size()-1)))

@@ -830,7 +830,7 @@ func Test_parseCommand(t *testing.T) {
 				cmd: "/command_name",
 			},
 			want:    "",
-			wantErr: errors.New("Bad request"),
+			wantErr: errors.New("bad request"),
 		},
 	}
 	for _, tt := range tests {

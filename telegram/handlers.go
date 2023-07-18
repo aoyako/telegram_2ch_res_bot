@@ -162,7 +162,7 @@ func parseCommand(cmd string) (string, error) {
 	separator := regexp.MustCompile(` `)
 	args := separator.Split(cmd, 2)
 	if len(args) != 2 {
-		return "", errors.New("Bad request")
+		return "", errors.New("bad request")
 	}
 
 	return args[1], nil
