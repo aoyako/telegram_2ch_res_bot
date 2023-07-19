@@ -216,7 +216,7 @@ func ParseKeywords(s string) func(string) bool {
 func ParseTypes(s string) SourceType {
 	var result SourceType
 
-	re := regexp.MustCompile(`\\.`)
+	re := regexp.MustCompile(`\.`)
 	res := re.Split(s, -1)
 	if _, ok := find(res, "img"); ok {
 		result.Image = true
