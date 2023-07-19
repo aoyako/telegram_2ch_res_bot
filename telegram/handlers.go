@@ -29,11 +29,17 @@ func subs(tb *TgBot) func(m *telebot.Message) {
 		subs, err := tb.Controller.Subscription.GetSubsByChatID(m.Chat.ID)
 		if err != nil {
 			log.Println(err)
-			tb.Bot.Send(m.Sender, "Bad request")
+			_, err := tb.Bot.Send(m.Sender, "Bad request")
+			if err != nil {
+				log.Println("Send message error", err)
+			}
 			return
 		}
 		result := fmt.Sprintf("Your subs:%s", marshallSubs(subs, true))
-		tb.Bot.Send(m.Sender, result)
+		_, err = tb.Bot.Send(m.Sender, result)
+		if err != nil {
+			log.Println("Send message error", err)
+		}
 	}
 }
 
@@ -42,7 +48,10 @@ func list(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		subs := tb.Controller.Subscription.GetAllDefaultSubs()
 		result := fmt.Sprintf("Available subs:%s", marshallSubs(subs, true))
-		tb.Bot.Send(m.Sender, result)
+		_, err := tb.Bot.Send(m.Sender, result)
+		if err != nil {
+			log.Println("Send message error", err)
+		}
 	}
 }
 
@@ -51,14 +60,20 @@ func cleverList(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		subs := tb.Controller.Subscription.GetAllDefaultSubs()
 		result := fmt.Sprintf("Available subs:%s", marshallSubs(subs, false))
-		tb.Bot.Send(m.Sender, result)
+		_, err := tb.Bot.Send(m.Sender, result)
+		if err != nil {
+			log.Println("Send message error", err)
+		}
 	}
 }
 
 // /help endpoint
 func help(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
-		tb.Bot.Send(m.Sender, HelpMessage, telebot.ModeMarkdown)
+		_, err := tb.Bot.Send(m.Sender, HelpMessage, telebot.ModeMarkdown)
+		if err != nil {
+			log.Println("Send message error", err)
+		}
 	}
 }
 
@@ -67,17 +82,26 @@ func create(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		args, err := parseCommand(m.Text)
 		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad request")
+			_, err_send := tb.Bot.Send(m.Sender, "Bad request")
+			if err != nil {
+				log.Println("Send message error", err_send, "caused by", err)
+			}
 			return
 		}
 
 		err = tb.Controller.AddNew(m.Chat.ID, args)
 		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad request")
+			_, err_send := tb.Bot.Send(m.Sender, "Bad request")
+			if err != nil {
+				log.Println("Send message error", err_send, "caused by", err)
+			}
 			return
 		}
 
-		tb.Bot.Send(m.Sender, "OK")
+		_, err = tb.Bot.Send(m.Sender, "OK")
+		if err != nil {
+			log.Println("Send message error", err)
+		}
 	}
 }
 
@@ -86,17 +110,26 @@ func subscribe(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		args, err := parseCommand(m.Text)
 		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad request")
+			_, err_send := tb.Bot.Send(m.Sender, "Bad request")
+			if err != nil {
+				log.Println("Send message error", err_send, "caused by", err)
+			}
 			return
 		}
 
 		err = tb.Controller.Subscription.Subscribe(m.Chat.ID, args)
 		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad request")
+			_, err_send := tb.Bot.Send(m.Sender, "Bad request")
+			if err != nil {
+				log.Println("Send message error", err_send, "caused by", err)
+			}
 			return
 		}
 
-		tb.Bot.Send(m.Sender, "OK")
+		_, err = tb.Bot.Send(m.Sender, "OK")
+		if err != nil {
+			log.Println("Send message error", err)
+		}
 	}
 }
 
@@ -105,17 +138,26 @@ func createDefault(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		args, err := parseCommand(m.Text)
 		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad request")
+			_, err_send := tb.Bot.Send(m.Sender, "Bad request")
+			if err != nil {
+				log.Println("Send message error", err_send, "caused by", err)
+			}
 			return
 		}
 
 		err = tb.Controller.Create(m.Chat.ID, args)
 		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad request")
+			_, err_send := tb.Bot.Send(m.Sender, "Bad request")
+			if err != nil {
+				log.Println("Send message error", err_send, "caused by", err)
+			}
 			return
 		}
 
-		tb.Bot.Send(m.Sender, "OK")
+		_, err = tb.Bot.Send(m.Sender, "OK")
+		if err != nil {
+			log.Println("Send message error", err)
+		}
 	}
 }
 
@@ -124,17 +166,26 @@ func deleleSub(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		args, err := parseCommand(m.Text)
 		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad request")
+			_, err_send := tb.Bot.Send(m.Sender, "Bad request")
+			if err != nil {
+				log.Println("Send message error", err_send, "caused by", err)
+			}
 			return
 		}
 
 		err = tb.Controller.Subscription.Remove(m.Chat.ID, args)
 		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad index")
+			_, err_send := tb.Bot.Send(m.Sender, "Bad index")
+			if err != nil {
+				log.Println("Send message error", err_send, "caused by", err)
+			}
 			return
 		}
 
-		tb.Bot.Send(m.Sender, "OK")
+		_, err = tb.Bot.Send(m.Sender, "OK")
+		if err != nil {
+			log.Println("Send message error", err)
+		}
 	}
 }
 
@@ -143,17 +194,26 @@ func removeDefault(tb *TgBot) func(m *telebot.Message) {
 	return func(m *telebot.Message) {
 		args, err := parseCommand(m.Text)
 		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad request")
+			_, err_send := tb.Bot.Send(m.Sender, "Bad request")
+			if err != nil {
+				log.Println("Send message error", err_send, "caused by", err)
+			}
 			return
 		}
 
 		err = tb.Controller.Subscription.RemoveDefault(m.Chat.ID, args)
 		if err != nil {
-			tb.Bot.Send(m.Sender, "Bad index")
+			_, err_send := tb.Bot.Send(m.Sender, "Bad index")
+			if err != nil {
+				log.Println("Send message error", err_send, "caused by", err)
+			}
 			return
 		}
 
-		tb.Bot.Send(m.Sender, "OK")
+		_, err = tb.Bot.Send(m.Sender, "OK")
+		if err != nil {
+			log.Println("Send message error", err)
+		}
 	}
 }
 
