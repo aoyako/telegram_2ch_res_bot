@@ -17,7 +17,10 @@ type DiskDownloader struct {
 
 // NewDisckDownloader constructor for DiskDownloader
 func NewDisckDownloader(path string) *DiskDownloader {
-	os.MkdirAll(path, os.ModePerm)
+	err := os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return &DiskDownloader{Path: path}
 }
 

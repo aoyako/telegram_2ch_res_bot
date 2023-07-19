@@ -162,7 +162,11 @@ func (scon *SubscriptionController) RemoveDefault(chatID int64, request string) 
 
 	for i := range users {
 		users[i].SubsCount--
-		scon.stg.User.Update(&users[i])
+		err := scon.stg.User.Update(&users[i])
+		if err != nil {
+			log.Println("RemoveDefault.Update User", err)
+			return errors.New("bad request")
+		}
 	}
 
 	return scon.stg.Subscription.Remove(&pubs[pubID])

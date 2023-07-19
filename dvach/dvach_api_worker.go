@@ -48,6 +48,7 @@ func (dw *APIWorkerDvach) InitiateSending() {
 	boardSubs := make(map[string][]logic.Publication)
 	subs := dw.cnt.GetAllSubs()
 
+	// nolint:gosimple
 	for i := range subs {
 		boardSubs[subs[i].Board] = append(boardSubs[subs[i].Board], subs[i])
 	}
@@ -215,7 +216,7 @@ func ParseKeywords(s string) func(string) bool {
 func ParseTypes(s string) SourceType {
 	var result SourceType
 
-	re := regexp.MustCompile("\\.")
+	re := regexp.MustCompile(`\.`)
 	res := re.Split(s, -1)
 	if _, ok := find(res, "img"); ok {
 		result.Image = true

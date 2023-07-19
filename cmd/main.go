@@ -13,7 +13,7 @@ func main() {
 	log.Println("Starting...")
 	bot, apicnt, duration := initialize.App()
 
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 
 	go bot.Bot.Start()

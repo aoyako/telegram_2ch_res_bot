@@ -91,9 +91,6 @@ func TestInfoPostgres_SetLastTimestamp(t *testing.T) {
 	type fields struct {
 		timestamp uint64
 	}
-	type args struct {
-		timestamp uint64
-	}
 	tests := []struct {
 		name   string
 		fields fields
@@ -106,7 +103,6 @@ func TestInfoPostgres_SetLastTimestamp(t *testing.T) {
 
 			infoStorage := dbmock.storage
 
-			const sqlUpdate = `UPDATE "infos" SET "last_post"=$1 WHERE "id" = $2`
 			const sqlSelect = `SELECT * FROM "infos" ORDER BY "infos"."id" LIMIT 1`
 
 			dbmock.mock.ExpectQuery(regexp.QuoteMeta(sqlSelect)).

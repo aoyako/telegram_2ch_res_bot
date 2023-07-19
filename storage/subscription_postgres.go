@@ -20,6 +20,7 @@ func NewSubscriptionPostgres(db *gorm.DB) *SubscriptionPostgres {
 // Add new subscription to user with publication
 func (subsStorage *SubscriptionPostgres) Add(user *logic.User, publication *logic.Publication) error {
 	result := subsStorage.db.Create(publication)
+	// nolint:errcheck
 	subsStorage.db.Model(publication).Association("Users").Append(user)
 	return result.Error
 }
