@@ -1,6 +1,6 @@
 # D-Sender
 
-Telegram bot that can extract media resources from 2ch.hk
+Telegram bot that can extract media resources from 2ch.hk and share them on a subscription-based schema.
 
 ## Capabilities
 
